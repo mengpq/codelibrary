@@ -1,0 +1,93 @@
+\subsubsection{最小费用最大流}
+\begin{verbatim}
+#include <queue>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+const int MAXN=1500;
+const int MAXM=100000;
+const int INF=0x3f3f3f3f;
+
+int n,m,S,T,total;
+queue<int> q;
+bool vis[MAXN];
+int g[MAXN],dist[MAXN],pre[MAXN];
+int f[MAXM],adj[MAXM],cost[MAXM],nex[MAXM];
+
+void ins(int x, int y, int limit, int c){
+    f[total]=limit;
+    cost[total]=c;
+    adj[total]=y;
+    nex[total]=g[x];
+    g[x]=total++;
+
+    f[total]=0;
+    cost[total]=-c;
+    adj[total]=x;
+    nex[total]=g[y];
+    g[y]=total++;
+}
+
+void init(){
+    int x,y,len;
+    total=0;
+    memset(g,255,sizeof(g));
+    scanf("%d%d",&n,&m);
+    for (int i=0; i<m; i++){
+        scanf("%d%d%d",&x,&y,&len);
+        ins(x,y,1,len);
+        ins(y,x,1,len);
+    }
+    S=n+1; T=S+1;
+    ins(S,1,2,0); ins(n,T,2,0);
+}
+
+bool SPFA(){
+    memset(vis,0,sizeof(vis));
+    memset(dist,60,sizeof(dist));
+    int maxlong=dist[S]; dist[S]=0;
+    q.push(S); vis[S]=true;
+    while (!q.empty()){
+        int node=q.front(); q.pop();
+        for (int p=g[node]; p!=-1; p=nex[p])
+            if (f[p]>0 && dist[node]+cost[p]<dist[adj[p]]){
+                dist[adj[p]]=dist[node]+cost[p];
+                pre[adj[p]]=p;
+                if (!vis[adj[p]]){
+                    q.push(adj[p]);
+                    vis[adj[p]]=true;
+                }
+            }
+        vis[node]=false;
+    }
+    return dist[T]!=maxlong;
+}
+
+int AugPath(){
+    int COST=0,F=INF;
+    for (int i=T; i!=S; i=adj[pre[i]^1]) F=min(F,f[pre[i]]);
+    for (int i=T; i!=S; i=adj[pre[i]^1]){
+        COST+=F*cost[pre[i]];
+        f[pre[i]]-=F;
+        f[pre[i]^1]+=F;
+    }
+    return COST;
+}
+
+void solve(){
+    int COST=0;
+    while (SPFA()) COST+=AugPath();
+    printf("%d\n",COST);
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+
+\end{verbatim}

@@ -1,0 +1,91 @@
+\subsection{多边形的核}
+平面简单多边形的核是该多边形内部的一个点集，该点集中任意一点与
+多边形边界上一点连线都处于这个多边形内部。\par
+求多边形的核的思想是用原多边形的边所在的直线不断切割多边形。
+\begin{verbatim}
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+const int MAXN=2000;
+const double eps=1e-8;
+
+struct point{
+    double x,y;
+};
+
+int n,N,ca;
+point a[MAXN],b[MAXN],c[MAXN];
+
+void getABC(double &A, double &B, double &C, point &a, point &b){
+    A=b.y-a.y;
+    B=a.x-b.x;
+    C=A*a.x+B*a.y;
+}
+
+point getIntersection(double A1, double B1, double C1, 
+                      double A2, double B2, double C2){
+    double det=A2*B1-A1*B2;
+    if (abs(det)<eps){
+    }
+    point ret;
+    ret.x=(B1*C2-B2*C1)/det;
+    ret.y=(A2*C1-A1*C2)/det;
+    return ret;
+}
+
+void init(){
+    cin>>n;
+    for (int i=0; i<n; i++) cin>>a[i].x>>a[i].y;
+}
+
+void check(double A, double B, double C){
+    int size=0;
+    double A1,B1,C1;
+    for (int i=1; i<=N; i++)
+        if (A*b[i].x+B*b[i].y-C>=-eps){ //点是逆时针的话就<=eps
+            c[++size]=b[i];
+        } else{
+            if (A*b[i-1].x+B*b[i-1].y-C>eps){ //点是逆时针的话就<-eps
+                getABC(A1,B1,C1,b[i],b[i-1]);
+                c[++size]=getIntersection(A,B,C,A1,B1,C1);
+            }
+            if (A*b[i+1].x+B*b[i+1].y-C>eps){ //点是逆时针的话就<-eps
+                getABC(A1,B1,C1,b[i+1],b[i]);
+                c[++size]=getIntersection(A,B,C,A1,B1,C1);
+            }
+        }
+    N=size;
+    for (int i=1; i<=N; i++) b[i]=c[i];
+    b[0]=b[N]; b[N+1]=b[1];
+}
+
+void solve(){
+    double A,B,C;
+    N=n;
+    for (int i=1; i<=N; i++) b[i]=a[i-1];
+    b[0]=b[N]; b[N+1]=b[1]; a[n]=a[0];
+    for (int i=0; i<n; i++){
+        getABC(A,B,C,a[i],a[i+1]);
+        check(A,B,C);
+    }
+
+	//核的面积
+    double ret=0;
+    for (int i=1; i<=N; i++)
+        ret+=b[i].x*b[i+1].y-b[i].y*b[i+1].x;
+    printf("%.2lf\n",fabs(ret/2.0));
+
+	//如果N>0则存在核
+	if (N>0) cout<<"YES"<<endl; else cout<<"NO"<<endl;
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim}

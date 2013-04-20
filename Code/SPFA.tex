@@ -1,0 +1,82 @@
+\subsubsection{SPFA}
+\begin{verbatim}
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+using namespace std;
+
+struct data
+{
+  int node,len;
+};
+
+const int maxn=1000001;
+const int maxm=1000001;
+
+int n,m,st,ed,tot;
+bool vis[maxn];
+int g[maxn],dist[maxn],next[maxm],q[maxn];
+data adj[maxm];
+
+void insert(int &x, int &y, int &len)
+{
+  ++tot;
+  adj[tot].node=y;
+  adj[tot].len=len;
+  next[tot]=g[x];
+  g[x]=tot;
+}
+
+void init()
+{
+  scanf("%d%d",&n,&m);
+  tot=0;
+  memset(g,0,sizeof(g));
+  int x,y,len;
+  for (int i=0; i<m; i++)
+  {
+    scanf("%d%d%d",&x,&y,&len);
+    insert(x,y,len);
+  }
+  scanf("%d%d",&st,&ed);
+}
+
+void solve()
+{
+  int x,p,fir,las,maxlong;
+  memset(dist,60,sizeof(dist));
+  memset(vis,0,sizeof(vis));
+  maxlong=dist[st]; dist[st]=0;
+  fir=las=1; q[1]=st;
+  while (fir<=las)
+  {
+    //必要的时候可以用循环队列x=q[(fir++)%mo];
+    x=q[fir++];
+    p=g[x];
+    while (p!=0)
+    {
+      if (dist[x]+adj[p].len<dist[adj[p].node])
+      {
+        dist[adj[p].node]=dist[x]+adj[p].len;
+        if (!vis[adj[p].node])
+        {
+          vis[adj[p].node]=true;
+          //必要的时候可以用循环队列q[(++las)%maxm]=adj[p].node
+          q[++las]=adj[p].node;
+        }
+      }
+      p=next[p];
+    }
+    vis[x]=false;
+  }
+  if (dist[ed]==maxlong) printf("-1\n"); else printf("%d\n",dist[ed]);
+}
+
+int main()
+{
+  init();
+  solve();
+  return 0;
+}
+
+\end{verbatim}

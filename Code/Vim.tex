@@ -1,0 +1,17 @@
+\subsection{Vim配置}
+\begin{verbatim}
+"set ai!                      " 设置自动缩进
+set tabstop=4                " 设置tab键的宽度
+set nu!                      " 显示行号
+set cindent shiftwidth=4     " 自动缩进4空格
+set smartindent              " 智能自动缩进
+set backspace=2              " 设置退格键可用
+syntax enable                " 打开语法高亮
+set makeprg=g++\ -o\ %<\ %\ -g
+map <silent> make :make <CR>
+map <silent> mr :! ./%< <CR>
+map <silent> mw :! ./%< <%<.in <CR>
+map <silent> mn :cnext <CR>
+map <silent> mp :cprev <CR>
+map <C-A> <ESC>ggyyVG"+y
+\end{verbatim}

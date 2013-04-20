@@ -1,0 +1,33 @@
+\subsection{Head算法}
+
+求$xy \ mod \ M$时，若$a*b$已经超出计算机整数表示范围，则会造成运算溢出。假设内置整数类型所能表示的最大数为$w$，则当$M<\frac{w}{2}$时，Head算法能在不造成运算溢出的情况下，计算$x*y\ mod \ M$。\par
+令$T=\lfloor \sqrt n +\frac{1}{2} \rfloor$，$t=T^2-M$。其中有$|t|<T$且$t\equiv T^2\ mod \ M$ \par
+任意整数都能表示成$aT+b$的形式，其中$0\leq a \leq T,0\leq b<T$。\par
+令$x=aT+b,y=cT+d$，则$xy\equiv(aT+b)(cT+d)\ (mod\ M)$。 \par
+$$(aT+b)(cT+d) \ (mod \  M) \equiv [hT+(g+f)t+bd] \ (mod \ M) $$
+在以上等式中，将$ac$表示成$eT+f$的形式，将$ad+bc+et$表示成$gT+h$的形式。算出$e,f,g,h$，然后计算$(hT+(g+f)t+bd)\ mod \ M$就会在不造成运算溢出的情况下算出答案。\par
+~\\
+~\\
+程序：\par
+\begin{verbatim}
+#include<cmath>
+
+#define ll long long
+
+ll mul_mod(ll x, ll y, ll n){
+    ll T=floor(sqrt(n)+0.5);
+    ll t=T*T-n;
+
+    ll a=x/T, b=x%T;
+    ll c=y/T, d=y%T;
+    ll e=a*c/T, f=a*c%T;
+
+    ll v=((a*d+b*c)%n+e*t)%n;
+    ll g=v/T, h=v%T;
+
+    ll ret=(((f+g)*t%n + b*d)%n+h*T)%n;
+    ret=(ret%n+n)%n;
+    return ret;
+}
+
+\end{verbatim}

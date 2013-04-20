@@ -1,0 +1,139 @@
+\subsubsection{树的同构}
+	【题目】给出一棵$n$个节点的树，用$m$种颜色对其节点染色，问有多少种不同的染色方案。\par
+	【思路】首先要处理子树的同构问题，对于任意自同构，质心是不动点（质心：直径的中点，如果直径长度是奇数，则质心在边上）。	\par 
+	设$f(T)$表示以树$T$本质不同的染色数，设$r$的儿子中共有$k$个同构等价类，分别为$T_1,T_2,\cdots,T_k$，数量分别为$c_1,c_2,\cdots,c_k$。对于任意等价类分别计算$f(T_i)$，$f(T)$等于不同构的子树染色数的乘积，对于每一个等价类$T_i$，一共有$c_i$个，那么对于这$c_i$个等价类的染色数等价于用$f(T_i)$种颜色对$c_i$个物品染色，这个问题等价于方程$x_1+x_2+\cdots+x_{f(T_i)}=c_i$的方案数$C(f(T_i)+c_i-1,c_i)$。\par
+	对于子树的同构判断，我们可以计算每一棵子树$T_i$的hash值。\par
+	设$H_i$为树$T_i$的hash值，树$T$有$k$棵子树，分别为$T_1,T_2,\cdots,T_k$，那么树$T$的hash值$H(T)=(((((a*p \mathbf{xor} H_1 mod q)*p \mathbf{xor} H_2) mod q)\cdots*p \mathbf{xor} H_k) mod q)*b mod q$，其中$a,b,p,q$为常量，$H_i$需要从小到大排序。 \par
+	~\\
+	~\\
+\subsubsection{树的分治}
+\begin{verbatim}
+/*
+* active[]表示当前子树的节点
+* nodeList存储当前子树的节点
+* visit[]表示已经用作根个节点(即已经被计算过)
+* data存储当前子树到根的路径的长度以及该路径属于哪一棵子树
+* 算法的具体思想就是找当前子树的中心，以中心为根节点，统计子树通过根节点
+* 连接起来的长度<=limit的路径。然后再统计删除该根节点后个棵子树的情况，一直递归。
+* 时间复杂度O(NlogN)，空间复杂度O(n)
+*/
+
+#include <vector>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct node_data{
+    int node,len;
+    node_data(int node=0, int len=0):node(node),len(len){}
+};
+
+const int MAXN=100001;
+
+int n,limit;
+bool active[MAXN],visit[MAXN];
+int total[MAXN];
+vector<int> nodeList;
+vector<node_data> g[MAXN];
+vector< pair<int,int> > data;
+
+void init(){
+    int x,y,len;
+    memset(g,0,sizeof(g));
+    for (int i=1; i<n; i++){
+        scanf("%d%d%d",&x,&y,&len);
+        --x,--y;
+        g[x].push_back(node_data(y,len));
+        g[y].push_back(node_data(x,len));
+    }
+}
+
+int newRoot(int node, int fa, int &root, int &nowMax, int totalNode){
+    int maxSize=0,sum=1;
+    for (int i=0; i<g[node].size(); i++)
+    if (g[node][i].node!=fa && active[g[node][i].node]){
+        int temp=newRoot(g[node][i].node,node,root,nowMax,totalNode);
+        maxSize=max(maxSize,temp);
+        sum+=temp;
+    }
+    maxSize=max(maxSize,totalNode-sum);
+    if (maxSize<nowMax){
+        root=node;
+        nowMax=maxSize;
+    }
+    return sum;
+}
+
+void getSubtree(int node, int fa, int len, int &part){
+    for (int i=0; i<g[node].size(); i++){
+        if (active[g[node][i].node] && g[node][i].node!=fa){
+            if (g[node][i].len+len>limit) continue;
+            data.push_back(make_pair(g[node][i].len+len,part));
+            getSubtree(g[node][i].node,node,g[node][i].len+len,part);
+        }
+    }
+}
+
+void getNodeList(int node, int fa){
+    active[node]=true;
+    nodeList.push_back(node);
+    for (int i=0; i<g[node].size(); i++)
+    if (g[node][i].node!=fa && !visit[g[node][i].node])
+    getNodeList(g[node][i].node,node);
+}
+
+long long getAnswer(int node, int fa){
+    nodeList.clear();
+    getNodeList(node,fa);
+    int root,nowMax=n;
+    newRoot(node,fa,root,nowMax,nodeList.size());
+
+    int part=0;
+    data.clear();
+    for (int i=0; i<g[root].size(); i++)
+    if (active[g[root][i].node] && g[root][i].len<=limit){
+        data.push_back(make_pair(g[root][i].len,part));
+        getSubtree(g[root][i].node,root,g[root][i].len,part);
+        ++part;
+    }
+    sort(data.begin(),data.end());
+
+    long long ret=data.size();
+    int le=-1,ri=data.size()-1;
+    while (ri>0){
+        while (le+1<ri && data[le+1].first+data[ri].first<=limit){
+            ++le;
+            ++total[data[le].second];
+        }
+        while (le>=ri) --total[data[le--].second];
+        ret+=le+1-total[data[ri].second];;
+        --ri;
+    }
+    for (int i=0; i<part; i++) total[i]=0;
+    for (int i=0; i<nodeList.size(); i++) active[nodeList[i]]=false;
+
+    visit[root]=true;
+    for (int i=0; i<g[root].size(); i++)
+    if (!visit[g[root][i].node])
+    ret+=getAnswer(g[root][i].node,root);
+    return ret;
+}
+
+void solve(){
+    memset(visit,0,sizeof(visit));
+    cout<<getAnswer(0,-1)+n<<endl;
+}
+
+int main(){
+    int SIZE=1<<23;
+    char *p=(char*)malloc(SIZE)+SIZE;
+    __asm__("movl %0, %%esp\n" :: "r"(p));
+    while (scanf("%d%d",&n,&limit)!=EOF){
+        init();
+        solve();
+    }
+    return 0;
+}
+\end{verbatim}

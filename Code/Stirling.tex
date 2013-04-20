@@ -1,0 +1,6 @@
+\subsubsection{Stirling数}
+第一类sitrling数：将$n$个数划分成$k$个循环，一共有$f(n,k)$总方案，$$f(n,k)=f(n-1,k-1)+(n-1)f(n-1,k)$$ 
+
+第二类stirling数：将$n$个数划分成$k$个集合，一共有$g(n,k)$种方案，$$g(n,k)=kg(n-1,k)+g(n-1,k-1)$$ 
+
+$$1^k+2^k+\cdots+n^k=g(k,0)C_{n+1}^1+g(k,1)C_{n+1}^2+\cdots +g(k,k)C_{n+1}^{k+1}$$

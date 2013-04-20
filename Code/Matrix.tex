@@ -1,0 +1,42 @@
+\subsection{矩阵}
+\begin{verbatim}
+typedef vector< vector<int> > mat;
+
+/* create a matrix with size n*m */
+mat zero(int n, int m){
+    return mat(n,vector<int>(m,0));
+}
+
+/* create a unit matrix with size n*n */
+mat unit(int n){
+    mat a=zero(n,n);
+    for (int i=0; i<n; i++) a[i][i]=1;
+    return a;
+}
+
+/* re-define Multiply opetator of Matrix */
+mat operator*(mat a, mat b){
+    /* usually Matrix a and b is n*n */
+    int n=a.size(), m=b.size(), p=b[0].size();
+
+    mat c=zero(n,p);
+    for (int i=0; i<n; i++)
+        for (int j=0; j<p; j++)
+            for (int k=0; k<m; k++)
+	        c[i][j]+=a[i][k]*b[k][j];
+    return c;
+}
+
+mat calc(int n){
+    if (n==0) return unit(n);
+
+    /* if Matrix is to large, remember to use Global Variables */
+    mat tmp=calc(n/2);
+
+    tmp=tmp*tmp;
+    if (n&1) tmp=tmp*basic;
+    return tmp;
+}
+
+
+\end{verbatim} 

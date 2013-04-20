@@ -1,0 +1,35 @@
+\def\ChineseScale{1200}
+\documentclass[12pt,a4paper,titlepage]{article}
+\usepackage{times}
+\usepackage{CJK}
+%CJK中文支持
+\usepackage{latexsym,bm}
+\usepackage{indentfirst}
+%自动首行缩进
+\usepackage[CJKbookmarks,colorlinks=true]{hyperref}
+%CJKbookmarks支持中文标签, colorlinks=true 就是把超链接的边框去掉,但字是红色的
+\usepackage[top=1in, bottom=1in, left=0.5in, right=0.5in]{geometry}
+%用来调页边距
+
+%\author{AcFast}
+%\title{title}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+	若二次方程$x^2\equiv a(\mathbf{mod}\ p)$存在解，则称$a$为$p$的二次剩余，否则称$a$为$p$的二次非剩余。
+	当$p$为奇素数时，有$\mathbf{Legendre}$符号: \par
+	\[ \Big (\frac{a}{p} \Big )= \left\{ 
+		\begin{array}{ll}
+			1  & \mbox{$a$为$p$的二次剩余} \\
+			-1 & \mbox{$a$为$p$的二次非剩余} \\
+			0  & \mbox{$a\equiv 0(\mathbf{mod}\  p)$} \\
+		\end{array} \right. \] 
+	$\mathbf{Legendre}$符号的一些性质：\par
+	1、$\Big (\frac{a}{p} \Big )=a^{(p-1)/2}$ \par
+	2、$\Big (\frac{a+p}{p} \Big )=\Big (\frac{a}{p}\Big )$ \par
+	3、$\Big (\frac{ab}{p} \Big ) =\Big (\frac{a}{p} \Big )\Big ( \frac{b}{p} \Big )$ \par
+	3、$\Big (\frac{-1}{p} \Big ) =(-1)^{\frac{p^2-1}{8}}$
+\end{CJK}
+\end{document}
+
+

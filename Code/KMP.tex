@@ -1,0 +1,71 @@
+\subsubsection{KMP}
+\begin{verbatim}
+
+/*
+str为主串,mode为模式串,返回匹配的位置从0开始计数。
+next[i]表示匹配到模式串第i个位置失败后应该尝试匹配next[i]这个位置
+*/
+void calc_next(string &st){
+    int i=0,j=-1; next[0]=-1;
+    while (i<st.length()){
+        if (j<0 || st[i]==st[j]){
+            ++i;
+            ++j;
+            next[i]=j;
+        } else j=next[j];
+    }
+}
+
+void KMP(string &str, string &mode){
+    calc_next(mode);
+    int i=0,j=0,modeLen=mode.size();
+    while (i<str.length()){
+        if (j<0 || str[i]==mode[j]){
+            ++i;
+            ++j;
+        } else j=next[j];
+
+        if (j>=modeLen){
+            cout<<i-mode.length()<<endl;
+            j=next[j];
+        }
+    }
+}
+\end{verbatim}
+
+\subsubsection{扩展KMP}
+\begin{verbatim}
+/*
+str是主串,mode是模式串。
+next[i]表示以模式串第i个位置开始的后缀和模式串的最长公共前缀的长度。
+extend[i]表示主串第i个位置开始的后缀和模式串的最长公共前缀。
+*/
+
+void calc_next(string &st){
+    int prev,pos,j=-1;
+    next[0]=st.length();
+    for (int i=1; i<st.length(); i++,j--){
+        if (j<0 || i+next[i-prev]>=pos){
+            if (j<0) j=0,pos=i;
+            while (pos<st.length() && st[pos]==st[j]){
+                ++pos,++j;
+            }
+            next[i]=j,prev=i;
+        } else next[i]=next[i-prev];
+    }
+}
+
+void getExtend(string &str, string &mode){
+    calc_next(mode);
+    int prev,pos,j=-1;
+    for (int i=0; i<str.length(); i++,--j){
+        if (j<0 || i+next[i-prev]>=pos){
+            if (j<0) j=0,pos=i;
+            while (pos<str.length() && j<mode.length() && str[pos]==mode[j]){
+                ++pos,++j;
+            }
+            extend[i]=j,prev=i;
+        } else extend[i]=next[i-prev];
+    }
+}
+\end{verbatim}

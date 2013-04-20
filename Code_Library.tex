@@ -1,0 +1,134 @@
+\def\ChineseScale{1200}
+\documentclass[12pt,a4paper,titlepage]{article}
+\usepackage{times}
+
+%\usepackage{CJK}
+%CJK中文支持
+
+%=========================xeCJK设置==============================
+\usepackage{xeCJK}
+%xeCJK中文支持
+
+\def\CJKecglue{\hskip 0.15em}
+%设置 CJK 文字与西文、文字与行内数学公式之间的间距, CJK默认值是一个空格。
+
+\setCJKmainfont{Hiragino Sans GB}
+\setCJKmonofont{Hiragino Sans GB}
+%设置正文等宽族的 CJK 字体, 影响 \ttfamily 和 \texttt 的字体。 为了有利于等宽字体的 代码对齐等情形, xeCJK 在 ⟨font features⟩ 里增加了 Mono 这个选项。
+
+\setmainfont{Source Code Pro}
+%================================================================
+
+\usepackage{latexsym,bm}
+\usepackage{indentfirst}
+%自动首行缩进
+\usepackage[top=1in, bottom=1in, left=0.5in, right=0.5in]{geometry}
+\usepackage[CJKbookmarks,colorlinks=true]{hyperref}
+
+
+%CJKbookmarks支持中文标签, colorlinks=true 就是把超链接的边框去掉,但字是红色的
+%用来调页边距
+\author{AcFast}
+\title{Standard Source Code Library}
+
+\begin{document}
+
+%CJK的时候使用
+%\begin{CJK}{UTF8}{gbsn}
+
+\maketitle
+\tableofcontents
+
+\newpage
+\section{\LARGE 算法}
+    %\subsection{最短路算法}
+    %\input{Code/Dijkstra_Heap}
+    %\input{Code/SPFA}
+
+    \subsection{网络流算法}
+    \input{Code/Network_mode}
+    \input{Code/SAP}
+    \input{Code/Networkflow_limit}
+    \input{Code/MinCostMaxFlow}
+    %\input{Code/Hungarian_Algorithm}
+    \input{Code/KM}
+    \input{Code/Network_cutpoint}
+
+    %\input{Code/Euler_circuit}
+
+    \subsection{生成树算法}
+	\input{Code/MST}
+    %\input{Code/Krusal}
+    %\input{Code/Prim}
+
+
+    \subsection{图算法}
+    %\input{Code/Kosaraju}
+    \input{Code/Cut_Point}
+    \input{Code/Cut_Edge}
+	\input{Code/Tree}
+
+    \input{Code/Hamilton}
+
+    \subsection{最近公共祖先算法}
+    %\input{Code/LCA_RMQ}
+    \input{Code/Tarjan}
+    \input{Code/Ancient_tree}
+
+    \subsection{字符串算法}
+    \input{Code/KMP}
+    \input{Code/Manacher}
+    \input{Code/Minimum}
+    \input{Code/Suffix}
+
+\section{\LARGE 数据结构}
+    %\subsection{平衡树}
+    %\input{Code/Treap}
+    %\input{Code/BST}
+
+	\input{Code/Splay}
+
+	\input{Code/LeftistTree}
+    \input{Code/Link_cut_tree}
+
+	\input{Code/Persistent_Data_Structures}
+
+    \subsection{字典树}
+    \input{Code/Trie_tree}
+    \input{Code/Trie_graph}
+
+    \input{Code/Kthnumber}
+
+\section{\LARGE 计算几何}
+    \input{Code/Geometry}
+    \input{Code/Polygon-core}
+    \input{Code/Rectangular}
+	\input{Code/UnionRectange}
+	\input{Code/KD-tree}
+
+\section{\LARGE 数学}
+    \input{Code/Conclusion}
+    \input{Code/Extended_gcd}
+    \input{Code/China}
+	\input{Code/Mod}
+    \input{Code/Euler}
+    \input{Code/Head}
+	\input{Code/DetMod}
+	%\input{Code/SG}
+
+    \subsection{特殊数列}
+    \input{Code/Fibonacci}
+    \input{Code/Catalan}
+    \input{Code/Stirling}
+	\input{Code/Schroder}
+
+\section{\LARGE 自定义类型及C++算法}
+    %\input{Code/BigInteger}
+    %\input{Code/FFT}
+    \input{Code/C++note}
+    %\input{Code/Editplus}
+    \input{Code/Vim}
+
+%CJK的时候使用
+%\end{CJK}
+\end{document}

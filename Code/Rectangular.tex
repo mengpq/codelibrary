@@ -1,0 +1,53 @@
+\subsection{矩形切割}
+\begin{verbatim}
+/*
+ * 有n个矩形，求这些矩形的面积并
+ * 算法的主要思想是枚举第i个矩形，求出第i个矩形被i+1..n的矩形
+ * 切割后剩下的面积是多少，加到最终的答案中
+ * 
+ * 如果题目的每个矩形都有颜色，而且后面的矩形会覆盖前面的矩形，
+ * 求每种颜色的面积。这样的题目也可以用矩形切割来做。
+*/
+
+//判断两个矩形是否相交，true代表不相交
+bool check(int &x1, int &y1, int &x2, int &y2, int &pos){
+    return x1>=v[pos].x2 || y1>=v[pos].y2 || x2<=v[pos].x1 || y2<=v[pos].y1;
+}
+
+void cut(int x1, int y1, int x2, int y2, int pos){
+    while (pos<N && check(x1,y1,x2,y2,pos)) ++pos;
+
+    //已经用v里面的N个矩形切割完
+    if (pos==N){
+        area+=(x2-x1)*(y2-y1);
+        return;
+    }
+
+    if (x1<v[pos].x1){
+        cut(x1,y1,v[pos].x1,y2,pos+1);
+        x1=v[pos].x1;
+    }
+
+    if (y1<v[pos].y1){
+        cut(x1,y1,x2,v[pos].y1,pos+1);
+        y1=v[pos].y1;
+    }
+
+    if (x2>v[pos].x2){
+        cut(v[pos].x2,y1,x2,y2,pos+1);
+        x2=v[pos].x2;
+    }
+
+    if (y2>v[pos].y2){
+        cut(x1,v[pos].y2,x2,y2,pos+1);
+        y2=v[pos].y2;
+    }
+}
+
+void solve(){
+    area=0;
+    for (int i=0; i<N; i++)
+        cut(v[i].x1,v[i].y1,v[i].x2,v[i].y2,i+1);
+    cout<<area<<endl;
+}
+\end{verbatim}

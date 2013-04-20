@@ -1,0 +1,111 @@
+\subsubsection{Treap}
+\begin{verbatim}
+#include<ctime>
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+#include<algorithm>
+using namespace std;
+
+const int MAXN=100001;
+
+int n,m,tot,head,number;
+int size[MAXN],key[MAXN],num[MAXN],le[MAXN],ri[MAXN];
+
+void LeftRotate(int &head){
+  int tmp=ri[head];
+  ri[head]=le[tmp];
+  le[tmp]=head;
+  size[tmp]=size[head];
+  size[head]=size[le[head]]+size[ri[head]]+1;
+  head=tmp;
+}
+
+void RightRotate(int &head){
+  int tmp=le[head];
+  le[head]=ri[tmp];
+  ri[tmp]=head;
+  size[tmp]=size[head];
+  size[head]=size[le[head]]+size[ri[head]]+1;
+  head=tmp;
+}
+
+void insert(int &head, int &number){
+  if (head==0){
+    ++tot;
+    size[tot]=1; key[tot]=number;
+    le[tot]=ri[tot]=0;
+    num[tot]=random(6553600)+1;
+    head=tot;
+  } else{
+    size[head]++;
+    if (key[head]>number){
+      insert(le[head],number);
+      if (num[le[head]]>num[head]) RightRotate(head);
+    } else{
+      insert(ri[head],number);
+      if (num[ri[head]]>num[head]) LeftRotate(head);
+    }
+  }
+}
+
+bool find_number(int &head, int &number){
+  if (head==0) return false;
+  if (key[head]>number) return find_number(le[head],number); else
+  if (key[head]<number) return find_number(ri[head],number); else
+                      return true;
+}
+
+int find_kth(int &head, int sum){
+  if (size[le[head]]+1==sum) return key[head]; else
+  if (size[le[head]]+1<sum) return find_kth(ri[head],sum-size[le[head]]-1); else
+                          return find_kth(le[head],sum);
+}
+
+void del(int &head, int &number){
+  --size[head];
+  if (key[head]>number) del(le[head],number); else
+  if (key[head]<number) del(ri[head],number); else{
+    if (size[head]==0){
+      head=0;
+      return;
+    }
+    if (num[le[head]]>num[ri[head]]){
+      RightRotate(head);
+      del(ri[head],number);
+    } else{
+      LeftRotate(head);
+      del(le[head],number);
+    }
+  }
+}
+
+void solve(){
+  int opt,number;
+  randomize();
+  scanf("%d",&m);
+  head=tot=0;
+  for (int i=1; i<=m; i++){
+    scanf("%d%d",&opt,&number);
+    if (opt==1){
+      insert(head,number);
+    } else
+    if (opt==2){
+      if (find_number(head,number)) cout<<"Find"<<endl; else 
+                                    cout<<"Not Find"<<endl;
+    } else
+    if (opt==3){
+      if (size[head]<number) cout<<"total less than kth"<<endl; else
+                           cout<<find_kth(head,number)<<endl;
+    } else{
+      if (find_number(head,number))
+        del(head,number);
+    }
+  }
+}
+
+int main(){
+  solve();
+  return 0;
+}
+\end{verbatim} 

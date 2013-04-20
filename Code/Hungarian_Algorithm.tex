@@ -1,0 +1,64 @@
+\subsubsection{匈牙利算法}
+
+\begin{verbatim}
+/*
+ *cx[i]表示X点集中编号为i的点匹配Y点集中编号为cx[i]的点
+ *cy[i]表示Y点集中编号为i的点匹配X点集中编号为cy[i]的点
+ *sy[i]表示一次找增广路中Y集合编号为i的点是否被访问
+*/
+
+#include<cstdio>
+#include<vector>
+#include<cstring>
+#include<iostream>
+using namespace std;
+
+const int MAXN=1001;
+
+int n,m;
+bool sy[MAXN];
+int cx[MAXN],cy[MAXN];
+vector<int> g[MAXN];
+
+void init(){
+    int x,y;
+    cin>>n>>m;
+    memset(g,0,sizeof(g));
+    for (int i=0; i<m; i++){
+        scanf("%d%d",&x,&y);
+        g[x].push_back(y);
+    }
+}
+
+bool find(int k){
+    for (int i=0; i<g[k].size(); i++)
+    if (!sy[g[k][i]]){
+        sy[g[k][i]]=true;
+        if (cy[g[k][i]]==0 || find(cy[g[k][i]])){
+            cy[g[k][i]]=k;
+            cx[k]=g[k][i];
+            return true;
+        }
+    }
+    return false;
+}
+
+void solve(){
+    memset(cx,0,sizeof(cx));
+    memset(cy,0,sizeof(cy));
+    int ret=0;
+    for (int i=1; i<=n; i++){
+        memset(sy,0,sizeof(sy));
+        if (find(i)) ++ret;
+    }
+    cout<<ret<<endl;
+    for (int i=1; i<=n; i++)
+        if (cx[i]!=0)
+            cout<<i<<' '<<cx[i]<<endl;
+}
+
+int main(){
+    init();
+    solve();
+}
+\end{verbatim}

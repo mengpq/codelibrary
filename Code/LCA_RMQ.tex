@@ -1,0 +1,86 @@
+\subsubsection{LCA-RMQ}
+\begin{verbatim}
+#include<cmath>
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+using namespace std;
+
+struct data {
+    int value,pos;
+};
+
+const double eps=1e-7;
+const int MAXN=100001;
+const int MAXM=100001;
+const int logMAXN=18;
+
+int n,m,tot,total;
+int g[MAXN],pos[MAXN];
+int adj[MAXM*2],next[MAXM*2]; //数组大小*2
+data RMQ[MAXN*2+1][logMAXN]; //2^(logMAXN-1)>MAXN
+
+void connect(int x, int y){
+    ++total;
+    adj[total]=y;
+    next[total]=g[x];
+    g[x]=total;
+}
+
+void init(){
+    scanf("%d%d",&n,&m);
+    memset(g,0,sizeof(g));
+    total=0;
+    int x,y;
+    for (int i=1; i<n; i++){
+        scanf("%d%d",&x,&y);
+        connect(x,y);
+        connect(y,x);
+    }
+}
+
+void dfs(int now, int fa, int deep){
+    ++tot;
+    pos[now]=tot;
+    RMQ[tot][0].value=deep; RMQ[tot][0].pos=now;
+    for (int i=g[now]; i!=0; i=next[i])
+        if (adj[i]!=fa){
+            dfs(adj[i],now,deep+1);
+            ++tot;
+            RMQ[tot][0].value=deep; RMQ[tot][0].pos=now;
+        }
+}
+
+void RMQ_CALC(){
+    for (int j=1; j<=(int)(log(tot)/log(2)); j++){
+        int i;
+        for (i=1; i<=tot-(1<<(j-1)); i++)
+            if (RMQ[i][j-1].value<RMQ[i+(1<<(j-1))][j-1].value)
+                RMQ[i][j]=RMQ[i][j-1]; else
+                RMQ[i][j]=RMQ[i+(1<<(j-1))][j-1];
+    }
+}
+
+void solve(){
+    tot=0;
+    memset(RMQ,0,sizeof(RMQ));
+    dfs(1,0,1);
+    RMQ_CALC();
+    int x,y;
+    for (int i=1; i<=m; i++){
+        scanf("%d%d",&x,&y);
+        x=pos[x]; y=pos[y];
+        if (x>y) swap(x,y);
+        //log会产生微小的误差，所以取整前最好要加eps
+        int tmp=(int)(log(y-x+1)/log(2)+eps);
+        if (RMQ[x][tmp].value<RMQ[y-(1<<tmp)+1][tmp].value)
+            printf("%d\n",RMQ[x][tmp].pos); else
+            printf("%d\n",RMQ[y-(1<<tmp)+1][tmp].pos);
+    }
+}
+
+int main(){
+    init();
+    solve();
+}
+\end{verbatim} 

@@ -1,0 +1,56 @@
+\subsection{扩展GCD}
+考虑这样一个不定方程：$$ax+by=c$$
+
+易知方程有解的充分必要条件是$(a,b) \mid c$
+
+根据gcd求解的特点，我们可以构造这样一个等式 $$ax+by=bx'+\left (a-b\left \lfloor \frac{a}{b} \right \rfloor\right )y'=c$$
+
+于是有 $$a(x-y')+b\left (y-x'+\left \lfloor \frac{a}{b} \right \rfloor y'\right )=0$$
+
+所以$$x=y'\quad , \quad y=x'-\left \lfloor \frac{a}{b} \right \rfloor y'$$
+是方程$ax+by=c$的一个解
+
+扩展gcd递归求解，当$b=0$时，令$x=\frac{c}{a},y=0$是$ax+by=c$的一组特解，然后根据上述等式，我们可以求出方程的一般解。
+令$x,y$是方程$ax+by=c$的一组特解，且$d=gcd(a,b)$，则方程$ax+by=c$的一般解为$$X=x+\frac{b}{d}t,Y=y-\frac{a}{d}t \quad |t \in{\mathbf{Z}}$$
+
+我们用$b^{-1}$表示$b$的逆元。因为$\frac{1}{b} \equiv c(mod \quad p) \Rightarrow bx-py=c$
+于是我们可以利用扩展gcd可以求出$b$的逆元$b^{-1}$，使得$\frac{a}{b}\equiv c(mod \quad p) \Rightarrow ab^{-1}\equiv c(mod \quad p)$
+
+\begin{verbatim}
+程序:
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+using namespace std;
+
+int a,b,c,x,y;
+
+void init(){
+  cin>>a>>b>>c;
+}
+
+void extend_gcd(int a, int b, int &d, int &x, int &y){
+    if (!b){
+        d=a; x=1; y=0;
+    } else{
+        extend_gcd(b,a%b,d,y,x);
+        y-=x*(a/b);
+    }
+}
+
+void solve(){
+  //求解ax+by=c
+  //方程有解的充要条件是gcd(a,b) | c
+  //求出方程的一个解x,y,然后对于任意正整数t,
+  //方程的一般解可以表示为X=x+b/d*t , Y=y-a/d*t
+  extend_gcd(a,b,d,x,y);
+  if (c%d!=0) cout<<"No solution"<<endl; else
+              cout<<"x="<<x<<" "<<"y="<<y<<endl;
+}
+
+int main(){
+  init();
+  solve();
+  return 0;
+}
+\end{verbatim}

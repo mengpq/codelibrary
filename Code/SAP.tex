@@ -1,0 +1,119 @@
+\subsubsection{SAP}
+\begin{verbatim}
+#include <queue>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+const int MAXN=102401;
+const int MAXM=256000;
+const int INF=0x7FFFFFFF;
+
+/*
+ * totalNode是网络图总的顶点数
+ * S，T分别为源点和汇点
+ *
+ * 在做SAP之前，先用BFS从T点遍历反向边给每个点距离标号
+*/
+
+int n,m,S,T,total,totalNode;
+int f[MAXM],next[MAXM],adj[MAXM];
+int g[MAXN],last[MAXN],h[MAXN],vh[MAXN];
+
+void ins(int x, int y, int limit){
+    f[total]=limit;
+    adj[total]=y;
+    next[total]=g[x];
+    g[x]=total++;
+
+    f[total]=0;
+    adj[total]=x;
+    next[total]=g[y];
+    g[y]=total++;
+}
+
+void init(){
+    int x,y,limit;
+    total=0;
+    memset(g,255,sizeof(g));
+    totalNode=n;
+    scanf("%d%d",&n,&m);
+    for (int i=0; i<m; i++){
+        scanf("%d%d%d",&x,&y,&limit);
+        ins(x,y,limit);
+    }
+}
+
+int dfs(int node, int add){
+    if (node==T) return add;
+    int minh=totalNode+1,p=last[node],y,temp;
+    do{
+        if (f[p]>0){
+            y=adj[p];
+            if (h[node]==h[y]+1){
+                temp=dfs(y,min(add,f[p]));
+                if (temp>0){
+                    f[p]-=temp;
+                    f[p^1]+=temp;
+                    last[node]=p;
+                    return temp;
+                }
+            }
+            if (h[S]>totalNode) return 0;
+            minh=min(minh,h[y]+1);
+        }
+        p=next[p];
+        if (p==-1) p=g[node];
+    } while (p!=last[node]);
+
+    if (--vh[h[node]]==0) h[S]=totalNode+1;
+    ++vh[h[node]=minh];
+    return 0;
+}
+
+/*
+ * 从汇点T遍历反向边给点标号，如果是无向图就随便遍历
+*/
+
+void BFS(int T){
+    memset(h,255,sizeof(h));
+    memset(vh,0,sizeof(vh));
+    vh[h[T]=0]=1;
+    queue<int> q;
+    q.push(T);
+    while (!q.empty()){
+        int node=q.front(); q.pop();
+        for (int p=g[node]; p!=-1; p=next[p]){
+            //p%2==1表示反向边，h[adj[p]]==-1表示该节点未被标号
+            if ((p&1) && h[adj[p]]==-1){ 
+                ++vh[h[adj[p]]=h[node]+1];
+                q.push(adj[p]);
+            }
+        }
+    }
+}
+
+int maxFlow(){
+	if (g[S]==-1){
+		/* no flow */
+		return 0;
+	}
+    BFS(T);
+    for (int i=1; i<=totalNode; i++) last[i]=g[i];
+    int flow=0;
+    while (h[S]<=totalNode) flow+=dfs(S,INF);
+    return flow;
+}
+
+void solve(){
+    cout<<maxFlow()<<endl;
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim} 

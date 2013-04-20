@@ -1,0 +1,51 @@
+\subsubsection{回文串Manacher算法}
+\begin{verbatim}
+Manacher算法的主要思想就是利用对称关系，记录一个对称轴以及回文串长度+对称轴的最大位置，然后算出以当前字符为中心的最长回文串。
+
+#include <string>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+using namespace std;
+
+const int MAXN=100001;
+
+string st;
+int ret[MAXN*2];
+
+int Manacher(string &st){
+    //偶数位置填一个没有出现的字符
+    string str="#";
+    for (int i=0; i<st.size(); i++){
+        str+=st[i];
+        str+='#';
+    }
+    //ret[i]表示以i这个字符为中心，最长的回文串长度减1
+    int MAX=0,pos;
+    for (int i=1; i<=str.size(); i++){
+        if (MAX>i) ret[i]=min(ret[2*pos-i],MAX-i); else ret[i]=1;
+        while (str[i-1-ret[i]]==str[i-1+ret[i]]) ++ret[i];
+        if (ret[i]+i>MAX){
+            MAX=ret[i]+i;
+            pos=i;
+        }
+    }
+    MAX=2;
+    for (int i=1; i<=str.size(); i++) MAX=max(MAX,ret[i]);
+    return MAX-1;
+}
+
+void init(){
+    cin>>st;
+}
+
+void solve(){
+    cout<<Manacher(st)<<endl;
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim} 

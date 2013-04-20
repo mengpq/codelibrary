@@ -1,0 +1,48 @@
+\subsection{中国剩余定理}
+
+考虑同余方程组
+\begin{displaymath}
+\left \{ 
+    \begin{array}{l}
+        x \equiv a_1(mod \quad m_1) \\
+        x \equiv a_2(mod \quad m_2) \\
+        \cdots \cdots \\
+        x \equiv a_k(mod \quad m_k)
+    \end{array} 
+\right.
+\end{displaymath}
+
+其中$$(m_i,m_j)=1 \quad , \quad 1\leq i,j\leq k,i\neq j$$
+
+设
+$$M=m_1m_2\cdots m_k \quad , \quad Mi=\frac{M}{m_i}$$
+
+因为$(Mi,m_i)=1$，所以必然存在$Mi^{-1}$使得$$MiMi^{-1} \equiv 1 (mod \quad m_i)$$ $$MiMi^{-1}\equiv 0 (mod \quad m_j),1\leq j \leq k,j\neq i$$
+
+
+则$$x=\sum_{i=1}^ka_iMiMi^{-1}$$
+
+是同余方程组模$M$的唯一解，其中$Mi^{-1}$可用扩展gcd求得。
+
+注：同余方程组有解的充要条件是$a_i\equiv a_j(mod \quad (m_i,m_j)),1\leq i,j\leq k$
+
+\begin{verbatim}
+程序:
+int main(){
+  cin>>n;
+  for (int i=1; i<=n; i++) cin>>a[i]>>m[i];
+  int x , y , M=1 , ans=0;
+  //要求m[i]两两互质,同余方程组解唯一
+  for (int i=1; i<=n; i++) M*=m[i];
+  for (int i=1; i<=n; i++){
+    int Mi=M/m[i];
+    //求逆元Mi的逆元Mi'
+    extended_gcd(Mi,m[i],x,y);
+    ans+=a[i]*Mi*x;
+  }
+  //ans+M*t是一般解
+  ans=(ans%M+M)%M;
+  cout<<ans<<endl<<endl;
+  return 0;
+}
+\end{verbatim}

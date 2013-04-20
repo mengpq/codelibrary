@@ -1,0 +1,68 @@
+\subsubsection{Krusal}
+
+\begin{verbatim}
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+struct data{
+  int x,y,len;
+};
+
+const int maxn=100001;
+const int maxm=1000001;
+
+data a[maxm];
+int n,m,ans,father[maxn];
+
+bool cmp(const data &a, const data &b)
+{
+  return a.len<b.len;
+}
+
+void init()
+{
+  scanf("%d%d",&n,&m);
+  for (int i=0; i<m; i++) scanf("%d%d%d",&a[i].x,&a[i].y,&a[i].len);
+  sort(a,a+m,cmp);
+}
+
+int find(int k)
+{
+  int x,y=k;
+  while (father[y]!=y) y=father[y];
+  while (k!=y)
+  {
+    x=father[k];
+    father[k]=y;
+    k=x;
+  }
+  return y;
+}
+
+void solve()
+{
+  for (int i=1; i<=n; i++) father[i]=i;
+  ans=0;
+  for (int i=0; i<m; i++)
+  {
+    int x=find(a[i].x), y=find(a[i].y);
+    if (x!=y)
+    {
+      ans+=a[i].len;
+      father[x]=y;
+    }
+  }
+  printf("%d\n",ans);
+}
+
+int main()
+{
+  freopen("krusal.in","r",stdin);
+  freopen("krusal.out","w",stdout);
+  init();
+  solve();
+}
+\end{verbatim}

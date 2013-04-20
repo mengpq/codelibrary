@@ -1,0 +1,119 @@
+\subsubsection{Kosaraju}
+\begin{verbatim}
+#include<cstdio>
+#include<utility>
+#include<cstring>
+#include<iostream>
+using namespace std;
+
+#define MP make_pair
+
+const int maxn=100001;
+const int maxm=1000001;
+
+int n,m,tot,top,total;
+bool vis[maxn];
+int g[2][maxn],pr[maxn],part[maxn],adj[maxm*2],next[maxm*2];
+//模拟栈,纪录dfs时候的局部变量
+pair<int,int> stk[maxn];
+
+void init()
+{
+  int x,y;
+  scanf("%d%d",&n,&m);
+  total=0;
+  memset(g,0,sizeof(g));
+  for (int i=1; i<=m; i++)
+  {
+    scanf("%d%d",&x,&y);
+    ++total;
+    adj[total]=y;
+    next[total]=g[0][x];
+    g[0][x]=total;
+
+    ++total;
+    adj[total]=x;
+    next[total]=g[1][y];
+    g[1][y]=total;
+  }
+}
+
+void dfs1()
+{
+  while (top>0)
+  {
+    int now=stk[top].first;
+    int &p=stk[top].second;
+    if (p!=0)
+    {
+      int y=adj[p];
+      p=next[p];
+      if (!vis[y])
+      {
+        vis[y]=true;
+        stk[++top]=MP(y,g[0][y]);
+      }
+    } else
+    {
+      ++tot;
+      pr[tot]=now;
+      --top;
+    }
+  }
+}
+
+void dfs2()
+{
+  while (top>0)
+  {
+    int now=stk[top].first;
+    int &p=stk[top].second;
+    if (p!=0)
+    {
+      int y=adj[p];
+      p=next[p];
+      if (!vis[y])
+      {
+        vis[y]=true;
+        stk[++top]=MP(y,g[1][y]);
+      }
+    } else
+    {
+      part[now]=tot;
+      --top;
+    }
+  }
+}
+
+void solve()
+{
+  memset(vis,0,sizeof(vis));
+  tot=0;
+  for (int i=1; i<=n; i++)
+    if (!vis[i])
+    {
+      vis[i]=true;
+      top=0;
+      stk[++top]=MP(i,g[0][i]);
+      dfs1();
+    }
+  memset(vis,0,sizeof(vis));
+  tot=0;
+  for (int i=n; i>=1; i--)
+    if (!vis[pr[i]])
+    {
+      vis[pr[i]]=true;
+      top=0; ++tot;
+      stk[++top]=MP(pr[i],g[1][pr[i]]);
+      dfs2();
+    }
+  for (int i=1; i<=n; i++) cout<<part[i]<<endl;
+}
+
+int main()
+{
+  init();
+  solve();
+  return 0;
+}
+\end{verbatim} 

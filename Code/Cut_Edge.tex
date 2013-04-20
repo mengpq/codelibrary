@@ -1,0 +1,21 @@
+\subsubsection{无向图割边}
+\begin{verbatim}
+
+dfn[node]表示节点node访问的时间，lowlink[node]表示节点node不通过父子边能访问到的访问时间最早的节点的访问时间
+对于u->v这条边，若lowlink[v]>dfn[u]，那么这就是一条割边
+
+void dfs(int node){
+    ++sign;
+    dfn[node]=lowlink[node]=sign;
+    for (int i=0; i<g[node].size(); i++)
+        if (!vis[g[node][i].id]){
+            vis[g[node][i].id]=true;
+            if (dfn[g[node][i].y]==0){
+                 dfs(g[node][i].y);
+                 lowlink[node]=min(lowlink[node],lowlink[g[node][i].y]);
+                 if (lowlink[g[node][i].y]>dfn[node])
+                     cout<<g[node][i].id<<endl;
+            } else lowlink[node]=min(lowlink[node],dfn[g[node][i].y]);
+        }
+}
+\end{verbatim}

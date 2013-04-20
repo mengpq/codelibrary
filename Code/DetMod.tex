@@ -1,0 +1,100 @@
+\subsection{行列式取模}
+
+\subsubsection{辗转相除法}
+\begin{verbatim}
+/*
+ * 1、若矩阵两行进行交换，行列式取反
+ * 2、一行数加减另外一行数的倍数，行列式不变
+ * 于是对于第i行和第j行，可以将第j行减去matrix[j][i]/matrix[i][i]倍的i行
+ * 然后把两行交换，不断迭代至第j行的第i个元素变成0为止
+ * 这个方法适用于任何模数，时间复杂度为O(n^3logC)，C就是矩阵的数的范围
+*/
+int gauss(int matrix[][MAXN], int n){
+    int ret=1;
+    for (int i=0; i<n; i++)
+        for (int j=0; j<n; j++)
+            matrix[i][j]=(matrix[i][j]%Mod+Mod)%Mod;
+    for (int i=0; i<n; i++){
+        for (int j=i+1; j<n; j++){
+            while (matrix[j][i]){
+                int t=matrix[i][i]/matrix[j][i];
+                for (int k=i; k<n; k++){
+                    matrix[i][k]=(matrix[i][k]+(Mod-matrix[j][k])*t)%Mod;
+                    swap(matrix[j][k],matrix[i][k]);
+                }
+                ret=Mod-ret;
+            }
+        }
+        if (!matrix[i][i]) return 0;
+        ret=ret*matrix[i][i]%Mod;
+    }
+    return ret;
+}
+\end{verbatim}
+
+~\\
+~\\
+\subsubsection{高斯消元}
+\begin{verbatim}
+/*
+ * 把矩阵消成上三角矩阵，行列式就是对角线相乘
+ * 适用于模数为质数的情况
+ * 使用时注意范围溢出问题
+ * 时间复杂度O(n^3)
+*/
+
+void extended_gcd(int a, int b, int &x, int &y){
+    if (!b){
+        x=1,y=0;
+        return;
+    }
+    extended_gcd(b,a%b,y,x);
+    y-=(a/b)*x;
+}
+
+int gauss(int matrix[][MAXN], int n){
+    long long ret=1,inv=1;
+    for (int i=0; i<n; i++)
+        for (int j=0; j<n; j++)
+            matrix[i][j]=(matrix[i][j]%Mod+Mod)%Mod;
+
+    for (int i=0; i<n; i++){
+        int absMax=matrix[i][i],pos=i;
+        for (int j=i+1; j<n; j++){
+            if (abs(matrix[j][i])>abs(absMax)){
+                pos=j;
+                absMax=matrix[j][i];
+            }
+        }
+        if (i!=pos){
+            for (int j=0; j<n; j++){
+                swap(matrix[i][j],matrix[pos][j]);
+            }
+            ret=Mod-ret;
+        }
+        if (!matrix[i][i]) return 0;
+        
+        for (int k=i+1; k<n; k++){
+            if (matrix[k][i]==0) continue;
+            int d=gcd(abs(matrix[i][i]),abs(matrix[k][i]));
+            int lcm=abs(matrix[i][i]*matrix[k][i])/d,
+				mul1=lcm/matrix[i][i],mul2=lcm/matrix[k][i];
+            inv=inv*mul2%Mod;
+            if (inv<0) inv+=Mod;
+            for (int j=i; j<n; j++){
+                matrix[k][j]=matrix[k][j]*mul2-matrix[i][j]*mul1;
+                matrix[k][j]%=Mod;
+                if (matrix[k][j]<0) matrix[k][j]+=Mod;
+            }
+        }
+        ret=ret*matrix[i][i]%Mod;
+    }
+
+    int x,y;
+    extended_gcd(inv,Mod,x,y);
+    x=(x%Mod+Mod)%Mod;
+    ret=ret*x%Mod;
+    return ret;
+}
+
+\end{verbatim}

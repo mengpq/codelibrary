@@ -1,0 +1,10 @@
+\subsection{C++note}
+\begin{verbatim}
+g++增栈，放在main函数第一句话
+int SIZE=10<<20; //支持10W节点的数的递归
+char *p=(char*)malloc(SIZE)+SIZE;
+__asm__("movl %0, %%esp\n" :: "r"(p));
+
+vc++增栈
+#pragma comment(linker, "/STACK:16777216")
+\end{verbatim}

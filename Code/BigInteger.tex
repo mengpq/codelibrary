@@ -1,0 +1,187 @@
+\subsection{带符号高精度}
+\begin{verbatim}
+#include <string>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+class BigInteger{
+    private:
+        int a[127];
+        int size;
+        bool sign;
+    
+    public:
+        BigInteger();
+        BigInteger operator +(const BigInteger &a);
+        BigInteger operator -(const BigInteger &a);
+        BigInteger operator *(const BigInteger &a);
+    
+    public:
+        void print();
+        void ValueOf(string st);
+        void ValueOf(int value);
+        bool AbsBigger(const BigInteger &a, const BigInteger &b);
+        BigInteger add(const BigInteger &a, const BigInteger &b);
+        BigInteger mul(const BigInteger &a, const BigInteger &b);
+        BigInteger sub(const BigInteger &a, const BigInteger &b);
+};
+
+BigInteger::BigInteger(){
+    sign=true; size=1;
+    memset(a,0,sizeof(a));
+}
+
+bool BigInteger::AbsBigger(const BigInteger &a, const BigInteger &b){
+    if (a.size>b.size) return true;
+    if (a.size<b.size) return false;
+    for (int i=a.size; i>=1; i--)
+        if (a.a[i]!=b.a[i]){
+            return a.a[i]>b.a[i];
+        }
+    return true;
+}
+
+BigInteger BigInteger::operator +(const BigInteger &a){
+    if (!(this->sign ^ a.sign)) {
+        BigInteger ret=add(*this,a);
+        ret.sign=this->sign;
+        return ret;
+    }
+    if (this->sign){
+        if (AbsBigger(*this,a)) return sub(*this,a); 
+        BigInteger ret=sub(a,*this);
+        ret.sign=false;
+        return ret;
+    } else{
+        if (AbsBigger(a,*this)) return sub(a,*this);
+        BigInteger ret=sub(*this,a);
+        ret.sign=false;
+        return ret;
+    }
+}
+
+BigInteger BigInteger::operator -(const BigInteger &a){
+    //+ +
+    if (this->sign && a.sign){
+        if (AbsBigger(*this,a)){
+            return sub(*this,a);
+        } else{
+            BigInteger ret=sub(a,*this);
+            ret.sign=false;
+            return ret;
+        }
+    }
+
+    //- -
+    if (!this->sign && !a.sign){
+        if (AbsBigger(*this,a)){
+            BigInteger ret=sub(*this,a);
+            ret.sign=false;
+            return ret;
+        } else{
+            return sub(a,*this);
+        }
+    }
+    
+    //+ -
+    if (this->sign && !a.sign) return add(*this,a);
+    
+    //- +
+    if (!this->sign && a.sign){
+        BigInteger ret=add(*this,a);
+        ret.sign=false;
+        return ret;
+    }
+}
+
+BigInteger BigInteger::operator *(const BigInteger &a){
+    if (!(this->sign ^ a.sign)) return mul(*this,a);
+    BigInteger ret=mul(*this,a);
+    ret.sign=false;
+    return ret;
+}
+
+void BigInteger::print(){
+    if (!this->sign) putchar('-');
+    for (int i=this->size; i>=1; i--) putchar('0'+this->a[i]);
+}
+
+void BigInteger::ValueOf(int n){
+    this->size=0;
+    memset(this->a,0,sizeof(this->a));
+    if (n<0){
+        this->sign=false;
+        n=-n;
+    } else this->sign=true;
+    while (n){
+        this->a[++this->size]=n%10;
+        n/=10;
+    }
+    if (this->size==0) ++this->size;
+}
+
+void BigInteger::ValueOf(string st){
+    memset(this->a,0,sizeof(this->a));
+    if (st[0]=='-'){
+        this->sign=false;
+        st.erase(0,1);
+    } else this->sign=true;
+    this->size=st.size();
+    reverse(st.begin(),st.end());
+    for (int i=1; i<=this->size; i++)
+        this->a[i]=st[i-1]-'0';
+}
+
+BigInteger BigInteger::add(const BigInteger &a, const BigInteger &b){
+    BigInteger ret;
+    int g=0,len=max(a.size,b.size)+1;
+    for (int i=1; i<=len; i++){
+        ret.a[i]=a.a[i]+b.a[i]+g;
+        g=ret.a[i]/10;
+        ret.a[i]%=10;
+    }
+    while (len>1 && ret.a[len]==0) --len;
+    ret.size=len;
+    return ret;
+}
+
+BigInteger BigInteger::sub(const BigInteger &a, const BigInteger &b){
+    BigInteger ret=a; ret.sign=true;
+    for (int i=1; i<=ret.size; i++){
+        ret.a[i]-=b.a[i];
+        if (ret.a[i]<0){
+            ret.a[i]+=10;
+            --ret.a[i+1];
+        }
+    }
+    while (ret.size>1 && ret.a[ret.size]==0) --ret.size;
+    return ret;
+}
+
+BigInteger BigInteger::mul(const BigInteger &a, const BigInteger &b){
+    BigInteger ret;
+    for (int i=1; i<=a.size; i++){
+        int g=0;
+        for (int j=1; j<=b.size+1; j++){
+            ret.a[i+j-1]+=a.a[i]*b.a[j]+g;
+            g=ret.a[i+j-1]/10;
+            ret.a[i+j-1]%=10;
+        }
+    }
+    ret.size=a.size+b.size;
+    while (ret.size>1 && ret.a[ret.size]==0) --ret.size;
+    return ret;
+}
+
+int main(){
+    BigInteger a,b;
+    a.ValueOf("-256");
+    b.ValueOf("-256");
+    a=a*b;
+    a.print();
+    return 0;
+}
+\end{verbatim} 

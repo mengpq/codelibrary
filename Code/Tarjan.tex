@@ -1,0 +1,75 @@
+\subsubsection{Tarjan}
+\begin{verbatim}
+/*
+ * the node is 1-base
+*/
+#include <vector>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+const int MAXN=100001;
+const int MAXM=100001;
+
+struct query{
+    int node,id;
+    query(int node=0, int id=0):node(node),id(id){}
+};
+
+int n,m;
+bool visit[MAXN];
+int lca[MAXM];
+int father[MAXN];
+vector<int> g[MAXN];
+vector<query> q[MAXN];
+
+void init(){
+    int x,y;
+    memset(g,0,sizeof(g));
+    scanf("%d",&n);
+    for (int i=1; i<n; i++){
+        scanf("%d%d",&x,&y);
+        g[x].push_back(y);
+        g[y].push_back(x);
+    }
+}
+
+int find(int k){
+    return father[k]!=k?father[k]=find(father[k]):k;
+}
+
+void dfs(int node, int fa){
+    visit[node]=true;
+    for (int i=0; i<g[node].size(); i++)
+        if (g[node][i]!=fa){
+            dfs(g[node][i],node);
+            father[g[node][i]]=node;
+        }
+
+    for (int i=0; i<q[node].size(); i++)
+        if (visit[q[node][i].node]){
+            lca[q[node][i].id]=find(q[node][i].node);
+        }
+}
+
+void solve(){
+    int x,y;
+    scanf("%d",&m);
+    memset(q,0,sizeof(q));
+    for (int i=0; i<m; i++){
+        scanf("%d%d",&x,&y);
+        q[x].push_back(query(y,i));
+        q[y].push_back(query(x,i));
+    }
+    memset(visit,0,sizeof(visit));
+    for (int i=1; i<=n; i++) father[i]=i;
+    dfs(1,-1);
+    for (int i=0; i<m; i++) printf("%d\n",lca[i]);
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim}

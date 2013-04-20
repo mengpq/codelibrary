@@ -1,0 +1,30 @@
+\subsection{欧拉函数}
+\begin{verbatim}
+欧拉函数的性质: 
+\end{verbatim}
+$(1) \varphi(p^k)=p^k-p^{k-1}$ \quad 其中$p$是质数 \newline
+$(2) \varphi(nm)=\varphi(n)\varphi(m)$ \quad 其中$(n,m)=1$
+\begin{verbatim}
+推论：
+\end{verbatim}
+$(1)\sum_{1\leq i \leq n,(i,n)=1}{i}=\frac{1}{2} n\varphi(n)$ \newline
+$(2)\sum_{d|n}{\varphi(d)}=n$ \newline
+$(3)a^{\varphi(m)}\equiv 1(mod \quad m)$
+
+~\\
+$NlogN$求$1~N$的欧拉函数。\par
+\begin{verbatim}
+void euler(int n){
+    memset(phi,0,sizeof(phi));
+    phi[1]=1;
+    for (int i=2; i<=n; i++)
+        if (phi[i]==0){
+            phi[i]=i-1;
+            for (int j=i+i; j<=n; j+=i){
+                if (phi[j]==0) phi[j]=j;
+                phi[j]=phi[j]/i*(i-1);
+            }
+        }
+}
+
+\end{verbatim}

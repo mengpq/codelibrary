@@ -1,0 +1,103 @@
+\subsubsection{Suffix}
+
+\begin{verbatim}
+Suffix基本步骤：
+1、对字符串出现的字符进行排序，如果字符串出现的不同字母个数相对较少就用基数排序，在字符串的最后加上一个字典序最小的字母，这样可以防止例如AAAAA的时候，Suffix无法计算出Rank。如果遇到多个字符串，一般用不同且未出现过的字符隔开。
+
+2、计算SA、Rank以及height数组。
+
+3、后缀数组最常用到height数组的性质，height[i]表示排名为i和i-1的后缀的最长公共前缀。
+
+Suffix题目类型：
+1、求两个串后缀的最长公共前缀：对height做一次RMQ处理，然后就可以在O(1)时间内回答。
+
+2、可重叠最长重复字串：由于可重复，所以直接求height数组中的最大值即可。
+
+3、不可重叠最长重复字串(pku1743)：二分字串长度len，把height中连续>=len的分在一个组，然后在这个组找到最大、最小的Sa[i],Sa[j]如果Sa[i]-Sa[j]>=len就有解。
+
+4、可重叠的k次最长重复字串(pku3261)：同样二分字串长度len，把height中连续>=len的分在一个组，然后判断这个组元素个数是否不小于k。
+
+5、不同字串的个数(spoj705)：每个子串一定是某个后缀的前缀，那么原问题等价于求所有后缀之间的不相同的前缀的个数。如果所有的后缀按照suffix(sa[1]), suffix(sa[2]),...,
+suffix(sa[n])的顺序计算，不难发现，对于每一次新加进来的后缀suffix(sa[k]),它将产生n-sa[k]+1个新的前缀。但是其中有height[k]个是和前面的字符串的前缀是相同的。所以suffix(sa[k])将“贡献”出n-sa[k]+1-height[k]个不同的子串。累加后便是原问题的答案。这个做法的时间复杂度为O(n)。
+
+6、一个串的最长回文字串(pku3774)：把原串反过来加在原串后，用未出现字符隔开，然后对height做RMQ处理，然后问题就变成求两个串某两个后缀的最长公共字串。
+
+7、两个串的最长连续公共字串：用一个未出现的符号连接两串，然后求满足Sa[i],Sa[i-1]属于不同串的height[i]的最大值。
+
+8、长度不小于k 的公共子串的个数(pku3415):二分答案len,然后把height分组，看是否存在一组height值>=len且出现在每个串。
+\end{verbatim}
+
+\begin{verbatim}
+/* 
+ * sa[i]表示排名为i的后缀在原串的起始位置为sa[i](从1开始计数)
+ * rank[i]表示以第i个位置开始的后缀在所有后缀中的排名(从1开始计数)
+ * sa[rank[i]]==i、rank[sa[i]]==i
+ * height[i]表示排名为i的后缀与排名为i-1的后缀的最长公共前缀
+*/
+
+#include <string>
+#include <cstring>
+#include <iostream>
+using namespace std;
+
+const int MAXN=100001;
+const int maxChar=256;
+
+int rank[MAXN],rank1[MAXN],rank2[MAXN],sa[MAXN],
+    tmpsa[MAXN],height[MAXN],countrank[MAXN];
+
+void suffixArray(string &st){
+    int tot=0,len=st.size();
+    int number[maxChar];
+    bool appear[maxChar];
+    memset(appear,0,sizeof(appear));
+    memset(number,0,sizeof(number));
+    for (int i=0; i<len; i++) appear[st[i]]=true;
+    for (int i=0; i<maxChar; i++)
+        if (appear[i]) number[i]=++tot;
+
+    memset(countrank,0,sizeof(countrank));
+    for (int i=1; i<=len; i++){
+        rank[i]=number[st[i-1]];
+        ++countrank[rank[i]];
+    }
+    for (int i=1; i<=maxChar; i++) countrank[i]+=countrank[i-1];
+    for (int i=len; i>=1; i--) sa[countrank[rank[i]]--]=i;
+
+    int l=1;
+    while (l<=len){
+        for (int i=1; i<=len; i++){
+            rank1[i]=rank[i];
+            if (i+l<=len) rank2[i]=rank[i+l]; else 
+                rank2[i]=0;
+        }
+        memset(countrank,0,sizeof(countrank));
+        for (int i=1; i<=len; i++) ++countrank[rank2[i]];
+        for (int i=1; i<=len; i++) countrank[i]+=countrank[i-1];
+        for (int i=len; i>=1; i--) tmpsa[countrank[rank2[i]]--]=i;
+
+        memset(countrank,0,sizeof(countrank));
+        for (int i=1; i<=len; i++) ++countrank[rank1[i]];
+        for (int i=1; i<=len; i++) countrank[i]+=countrank[i-1];
+        for (int i=len; i>=1; i--) sa[countrank[rank1[tmpsa[i]]]--]=tmpsa[i];
+
+        rank[sa[1]]=1;
+        for (int i=2; i<=len; i++){
+            rank[sa[i]]=rank[sa[i-1]];
+            if (!(rank1[sa[i]]==rank1[sa[i-1]] 
+                  && rank2[sa[i]]==rank2[sa[i-1]]))
+                ++rank[sa[i]];
+        }
+        l+=l;
+    }
+
+    l=0; height[1]=0;
+    for (int i=1; i<=len; i++)
+        if (rank[i]>1){
+            int j=sa[rank[i]-1];
+            while (i+l<=len && j+l<=len && st[i+l-1]==st[j+l-1]) ++l;
+            height[rank[i]]=l;
+            if (l) --l;
+        } else height[rank[i]]=0;
+}
+\end{verbatim}

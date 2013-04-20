@@ -1,0 +1,102 @@
+\subsection{矩形面积并}
+
+\begin{verbatim}
+/*
+ * 求n个矩形的面积并
+ * 先离散化x轴坐标和y轴坐标
+ * 用平行x轴的扫描线扫描，把x轴的线段插入到当前的线段树里面
+ * 线段树记录x轴被覆盖的长度
+ * 假设离散化后x坐标有m个，那么线段树记录的下标是[1..m-1]
+ * 若下标从0开始计数，那么区间[l,r]的长度为x[r]-x[l-1]
+*/
+
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+const int MAXN=100001;
+
+struct segment{
+    int x1,x2,y,flag;
+    segment(){}
+    segment(int x1, int x2, int y, int flag):x1(x1),x2(x2),y(y),flag(flag){}
+};
+
+struct data{
+    int cover,len;
+};
+
+data tree[MAXN*8];
+segment seg[MAXN*2];
+int n,tot,totx,toty;
+int vx[MAXN*2],vy[MAXN*2];
+
+bool cmp(const segment &a, const segment &b){
+    return a.y<b.y;
+}
+
+void init(){
+    int x1,y1,x2,y2;
+    tot=totx=toty=0;
+    cin>>n;
+    for (int i=0; i<n; i++){
+        cin>>x1>>y1>>x2>>y2;
+        vx[totx++]=x1,vx[totx++]=x2;
+        vy[toty++]=y1,vy[toty++]=y2;
+        seg[tot++]=segment(x1,x2,y1,1);
+        seg[tot++]=segment(x1,x2,y2,-1);
+    }
+    sort(vx,vx+totx);
+    sort(vy,vy+toty);
+    totx=unique(vx,vx+totx)-vx;
+    toty=unique(vy,vy+toty)-vy;
+    sort(seg,seg+tot,cmp);
+}
+
+void update(int l, int r, int state){
+    if (!tree[state].cover){
+        tree[state].len=tree[state*2].len+tree[state*2+1].len;
+    } else tree[state].len=vx[r]-vx[l-1];
+}
+
+void insert(int l, int r, int state, int L, int R, int flag){
+    if (L>r || l>R) return;
+    if (L<=l && r<=R){
+        tree[state].cover+=flag;
+        update(l,r,state);
+        return;
+    }
+
+    int mid=(l+r)/2;
+    insert(l,mid,state*2,L,R,flag);
+    insert(mid+1,r,state*2+1,L,R,flag);
+    update(l,r,state);
+}
+
+void solve(){
+    memset(tree,0,sizeof(tree));
+    long long area=0,t=0;
+    for (int i=0; i<toty-1; i++){
+        while (t<tot && seg[t].y==vy[i]){
+            int L=lower_bound(vx,vx+totx,seg[t].x1)-vx+1,R=lower_bound(vx,vx+totx,seg[t].x2)-vx;
+            insert(1,totx-1,1,L,R,seg[t].flag);
+            ++t;
+        }
+        area+=(long long)(tree[1].len)*(vy[i+1]-vy[i]);
+    }
+    cout<<area<<endl;
+}
+
+int main(){
+    int ca;
+    cin>>ca;
+    for (int i=0; i<ca; i++){
+        init();
+        solve();
+    }
+    return 0;
+}
+
+\end{verbatim}

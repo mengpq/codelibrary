@@ -1,0 +1,14 @@
+\subsubsection{卡特兰数}
+\begin{verbatim}卡特兰序列：\end{verbatim}
+$$1,2,5,14,42,132,429,1430,4862$$ \newline
+第$n$项卡特兰数：$$C_n=\frac{C_{2n}^n}{n+1} \quad, n\geq 0$$ \newline
+模型: 有$n$个$+1$和$n$个$-1$构成的$2n$项 $$a_1,a_2,\cdots ,a_{2n}$$
+其部分和满足 $$a_1+a_2+\cdots+a_k\geq 0 \quad (k=1,2,\cdots,2n)$$
+的数列的个数等于第$n$个Catalan数$$C_n=\frac{C_{2n}^n}{n+1} $$
+应用：\newline
+(1)矩阵链乘，$P=a_1\times a_2\times \cdots \times a_n$
+根据乘法的结合律，不改变其顺序，只用括号表示成对的乘积，则一共有$C_n$种括号方案。\newline
+(2)一个容量无强大的栈的进栈次序为$1,2,3,\cdots,n$则一共有$C_n$种出栈方式 \newline
+(3)具有$n+1$条边的凸多边形的三角剖分方案有$C_{n-1}$种 \newline
+(4)在圆上选择$2n$个点，将这些点成对连接起来使得所有得到的$n$条线段不相交的方案数有$C_n$种 \newline
+(5)给定$n$个节点，能构成$C_n$种不同的二叉树 \newline

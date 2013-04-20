@@ -1,0 +1,230 @@
+\subsection{左偏树}
+\begin{verbatim}
+/*
+ * 左偏树应用快速合并两个堆
+ * 左偏树的节点有4个信息，分别是key，到最近的外部节点的距离dist
+ * 左右子树的指针left，right
+ *
+ * 左偏树的性质：
+ * 1、节点的key小于等于左右子节点的key
+ * 2、节点的左子树的dist不小于右子树的dist
+ * 3、节点的dist等于其右子树的dist+1，特别地空子树的dist=-1
+ * 4、一棵N个节点的左偏树的距离最多为log(N+1)-1
+ *
+ * 左偏树的操作是建立在merge之上，合并两棵左偏树A,B，以最小堆为例：
+ * 1、若A为空树，则返回B，若B为空树，返回A
+ * 2、如果A的key大于B的key，则交换A，B，然后继续合并
+ * 3、将B和A的右子树合并，如果合并之后A的右子树的dist大于左子树的
+ * dist， 则交换A的左右子树。若合并后A的右子树为空，额A的dist为0，
+ * 否则A的dist等于右子树的dist+1
+ * 
+ * 左偏树的操作：
+ * 1、插入：相当于合并两棵左偏树
+ * 2、删除根节点：合并根节点的左又子树
+ * 3、查询最值：根节点
+ *
+ * 给出N个节点，构建一棵N个节点的左偏树。
+ * 1、首先把所有节点加入到队列里面，每一个节点都可以看作一棵左偏树
+ * 2、每次选队列最前端的两个节点合并，把合并后的左偏树放到队尾。
+ * 3、这样合并N-1次就可以得到一棵左偏树，时间复杂度为O(N)
+ * 
+ * 用指针实现的左偏树，在实现清除操作时，要注意指针所指的数据不能被
+ * delete多次，否则会出现运行错误
+ *
+ * 左偏树的操作的时间复杂度：
+ * 构建        ：O(N)
+ * 插入        ：O(logN)
+ * 查询最值       ：O(1)
+ * 合并        ：O(logN)
+*/
+
+//以下是用指针实现的根的key为最小值的左偏树
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+struct leftistNode{
+    int key,dist;
+    leftistNode *left,*right;
+    leftistNode(int key=0):key(key){
+        dist=0;
+        left=right=NULL;
+    }
+};
+
+leftistNode *mergeNode(leftistNode *a, leftistNode *b){
+    if (a==NULL) return b;
+    if (b==NULL) return a;
+    if (a->key>b->key) swap(a,b);
+    a->right=mergeNode(a->right,b);
+    if (a->right!=NULL){
+        if (a->left==NULL || a->left->dist<a->right->dist)
+            swap(a->left,a->right);
+    }
+    if (a->right==NULL){
+        a->dist=0;
+    } else{
+        a->dist=a->right->dist+1;
+    }
+    return a;
+}
+
+struct leftistTree{
+    leftistNode *root;
+
+	leftistTree():root(NULL){}
+
+    void insert(leftistNode *rhs){
+        root=mergeNode(root,rhs);
+    }
+
+    void insert(int key){
+        leftistNode *temp=new leftistNode(key);
+        insert(temp);
+    }
+
+    void del(){
+        if (root==NULL) return;
+        leftistNode *temp=mergeNode(root->left,root->right);
+        delete root;
+        root=temp;
+    }
+
+    void _clear(leftistNode *root){
+        if (root==NULL) return;
+        if (root->left!=NULL) _clear(root->left);
+        if (root->right!=NULL) _clear(root->right);
+        delete root;
+    }
+
+    void clear(){
+        _clear(root);
+        root=NULL;
+    }
+
+    leftistNode *askMax(){
+        return root;
+    }
+};
+
+leftistTree merge(leftistTree a, leftistTree b){
+    leftistTree ret;
+    ret.root=mergeNode(a.root,b.root);
+    return ret;
+}
+
+/*
+ * 非指针版的实现就是事先开一个buffer存储数据
+ * 以下是zoj2334的程序
+*/
+
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+const int MAXN=100001;
+
+struct leftistNode{
+    int key,dist,left,right;
+
+    leftistNode(int key=0):key(key){
+        dist=0;
+        left=right=0;
+    }
+};
+
+leftistNode buffer[MAXN];
+
+int mergeNode(int A, int B){
+    if (!A) return B;
+    if (!B) return A;
+    if (buffer[A].key<buffer[B].key) swap(A,B);
+    buffer[A].right=mergeNode(buffer[A].right,B);
+    if (!buffer[B].left || 
+        buffer[buffer[A].left].dist<buffer[buffer[A].right].dist)
+            swap(buffer[A].left,buffer[A].right);
+    if (!buffer[A].right){
+        buffer[A].dist=0;
+    } else buffer[A].dist=buffer[B].dist+1;
+    return A;
+}
+
+struct leftistTree{
+    int root;
+    leftistTree(int root=0):root(root){}
+
+    void insert(int pos){
+        root=mergeNode(root,pos);
+    }
+
+    int del(){
+        int temp=root;
+        root=mergeNode(buffer[root].left,buffer[root].right);
+        return temp;
+    }
+
+    int top(){
+        return root;
+    }
+};
+
+leftistTree merge(leftistTree &a, leftistTree &b){
+    return leftistTree(mergeNode(a.root,b.root));
+}
+
+int n;
+int number[MAXN],father[MAXN];
+leftistTree heap[MAXN];
+
+void init(){
+    for (int i=1; i<=n; i++) scanf("%d",&number[i]);
+}
+
+int find(int k){
+    int x,y=k;
+    while (father[y]!=y) y=father[y];
+    while (k!=y){
+        x=father[k];
+        father[k]=y;
+        k=x;
+    }
+    return y;
+}
+
+void solve(){
+    int x,y,m,total=0;
+    for (int i=1; i<=n; i++){
+        father[i]=i;
+        buffer[++total]=leftistNode(number[i]);
+        heap[i].root=i;
+    }
+    scanf("%d",&m);
+    for (int i=0; i<m; i++){
+        scanf("%d%d",&x,&y);
+        x=find(x),y=find(y);
+        if (x==y){
+            printf("%d\n",-1);
+        } else{
+            father[y]=x;
+            heap[x]=merge(heap[x],heap[y]);
+            int pos=heap[x].del();
+            buffer[pos]=leftistNode(buffer[pos].key/2);
+            printf("%d\n",buffer[pos].key);
+            heap[x].insert(pos);
+        }
+    }
+}
+
+int main(){
+    while (scanf("%d",&n)!=EOF){
+        init();
+        solve();
+    }
+    return 0;
+}
+
+
+\end{verbatim}
+

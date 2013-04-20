@@ -1,0 +1,77 @@
+\subsubsection{Prim}
+\begin{verbatim}
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+struct data
+{
+  int node,len;
+};
+
+const int maxn=1001;
+const int maxm=1000001;
+const int INF=0x7FFFFFFF;
+
+data adj[maxm];
+bool vis[maxn];
+int n,m,tot,ans;
+int g[maxn],dist[maxn],next[maxm];
+
+void connect(int x, int y, int len)
+{
+  ++tot;
+  adj[tot].node=y;
+  adj[tot].len=len;
+  next[tot]=g[x];
+  g[x]=tot;
+}
+
+void init()
+{
+  int x,y,len;
+  scanf("%d%d",&n,&m);
+  tot=0;
+  memset(g,255,sizeof(g));
+  for (int i=1; i<=m; i++)
+  {
+    scanf("%d%d%d",&x,&y,&len);
+    connect(x,y,len);
+    connect(y,x,len);
+  }
+}
+
+void solve()
+{
+  for (int i=1; i<=n; i++)
+  {
+    vis[i]=false;
+    dist[i]=INF;
+  }
+  ans=0; dist[1]=0;
+  while (true)
+  {
+    int k, len=INF;
+    for (int i=1; i<=n; i++)
+      if (!vis[i] && dist[i]<len)
+      {
+        k=i;
+        len=dist[i];
+      }
+    if (len==INF) break;
+    ans+=len; vis[k]=true;
+    for (int p=g[k]; p!=-1; p=next[p]) dist[adj[p].node]=min(dist[adj[p].node],adj[p].len);
+  }
+  printf("%d\n",ans);
+}
+
+int main()
+{
+  freopen("prim.in","r",stdin);
+  freopen("prim.out","w",stdout);
+  init();
+  solve();
+}
+\end{verbatim}

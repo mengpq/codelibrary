@@ -1,0 +1,98 @@
+\subsection{FFT高精度乘法}
+\begin{verbatim}
+#include <string>
+#include <complex>
+#include <cstring>
+#include <iostream>
+using namespace std;
+
+const double pi=acos(-1.0);
+
+const int MAXN=200001;
+
+int n;
+string a,b;
+int ret[MAXN];
+complex<double> A[MAXN],B[MAXN];
+
+inline int rev(int value , int n){
+    int ret=0;
+    for (int i=n/2,j=0; i>0; i/=2,j++)
+        if (value & i) ret+=1<<j;
+    return ret;
+}
+
+void Bit_Reverse(complex<double> *A, int n){
+    for (int i=0; i<n; i++){
+        int j=rev(i,n);
+        if (i<j) swap(A[i],A[j]);
+    }
+}
+
+void FFT(complex<double> *A, int n, int on){
+    Bit_Reverse(A,n);
+    complex<double> u,t;
+    for (int m=2; m<=n; m*=2){
+        complex<double>wm(cos(on*2.0*pi/m),sin(on*2.0*pi/m));
+        for (int k=0; k<n; k+=m){
+            complex<double>w(1,0);
+            for (int j=k; j<k+m/2; j++){
+                u=A[j];
+                t=w*A[j+m/2];
+                A[j]=u+t;
+                A[j+m/2]=u-t;
+                w=w*wm;
+            }
+        }
+    }
+
+    if (on==-1)
+        for (int i=0; i<n; i++) A[i].real()/=n;
+}
+
+void init_value(complex<double> *A, string &st, int &n){
+    reverse(st.begin(),st.end());
+    int t=st.size()%2,temp;
+    for (int i=0; i<t; i++) st+='0';
+    for (int i=0; i<st.size()/2; i++){
+        temp=0; t=i*2;
+        for (int j=t+2-1; j>=t; j--) temp=temp*10+(st[j]-'0');
+        A[i].real()=temp;
+        A[i].imag()=0.0;
+    }
+    for (int i=st.size()/2; i<n; i++)
+        A[i].real()=A[i].imag()=0.0;
+}
+
+void init(){
+    cin>>a>>b;
+    n=1;
+    int t1=(a.size()-1)/2+1,t2=(b.size()-1)/2+1;
+    while (n<t1*2 || n<t2*2) n*=2;
+    init_value(A,a,n);
+    init_value(B,b,n);
+}
+
+void solve(){
+    FFT(A,n,1);
+    FFT(B,n,1);
+    for (int i=0; i<n; i++) A[i]=A[i]*B[i];
+    FFT(A,n,-1);
+    for (int i=0; i<n; i++) ret[i]=(long long)(A[i].real()+0.5);
+    for (int i=0; i<n; i++) cout<<ret[i]<<endl;
+    for (int i=0; i<n; i++){
+        ret[i+1]+=ret[i]/100;
+        ret[i]%=100;
+    }
+    //while (n>0 && ret[n]==0) --n;
+    //printf("%d",ret[n]);
+    //for (int i=n-1; i>=0; i--) printf("%.3d",ret[i]);
+    //cout<<endl;
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim}

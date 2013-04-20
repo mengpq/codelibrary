@@ -1,0 +1,37 @@
+\subsubsection{最小表示法}
+\begin{verbatim}
+#include <string>
+#include <cstring>
+#include <iostream>
+using namespace std;
+
+string st;
+
+void init(){
+    cin>>st;
+}
+
+int calc_min_pos(string &st){
+    int i=0,j=1,k=0,diff,len=st.size();
+    while (i<len && j<len && k<len){
+        diff=st[(i+k)%len]-st[(j+k)%len];
+        if (diff==0) ++k; else{
+            if (diff>0) i+=k+1; else j+=k+1;
+            if (i==j) ++j;
+            k=0;
+        }
+    }
+    return min(i,j);
+}
+
+void solve(){
+    cout<<calc_min_pos(st)<<endl;
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+
+\end{verbatim}

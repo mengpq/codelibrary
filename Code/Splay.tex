@@ -1,0 +1,238 @@
+\subsection{Splay}
+/* \par
+ * Splay多数用来维护一段序列，通常这一段序列又需要reverse操作，或者删除一段子序列等 \par
+ * Splay任意节点x提升为节点y的儿子，一般可以在这个操作的基础上完成其他操作 \par
+ * 例如要删除一段范围[x,y]的序列，那么可以把x-1这个节点提升为根，再把y+1这个节点提升 \par
+ * 为x-1的儿子（右儿子），然后y+1这个节点的左儿子就是[x,y]这一段序列 \par
+ * \par
+ * Splay的操作通常都是把一段范围的序列变为某个节点的一棵子树，然后就可以对这棵子树 \par
+ * 进行操作 \par
+ * \par
+ * 因为空序列不好处理，所以Splay一般都会加入两个不影响结果的辅助节点（头、尾），至于 \par
+ * 怎样不影响结果，要根据题目来设定。 \par
+ * \par
+ * Splay提升某个节点的时候，有两种情况。一种是先调用select得到节点x，然后再提升x，这样 \par
+ * 在splay操作时，就不需要pushdown标签，因为在select过程中已经pushdown了。 \par
+ * 但如果是已知某个节点x，需要splay提升，这是在splay提升的过程中，就要注意pushdown标签了 \par
+ * \textbf{在对Splay操作时，要时刻注意是否要进行pushdown操作} \par
+ * \par
+ * \par
+ * root               ：\textbf{SplayTree的根节点，要注意时刻维护！！！} \par
+ * build(data,l,r,fa) ：如果初始时给出序列，那么可以用build来建立一棵平衡的SplayTree \par
+ * rotate(x)          ：将节点x往上旋转（左右旋转都没问题） \par
+ * splay(x,fa)           ：将节点x提升为fa的儿子（当fa=NULL即将x提升为根） \par
+ * select(x,k)           ：一般调用为select(root,k)，即获得第排名为k的节点，在这个过程 \par
+ *                        中需要先pushdown下传标签 \par
+ * join(x,y)          ：合并x，y两棵SplayTree，其中y在x的右边。首先将x最右的节点提升为 \par
+ *                        x的根，此时x无右子树，所以直接将y连接为x的右子树 \par
+ * del(k)               ：删除排名为k的节点。首先将第k个节点提升为根，然后直接合并根的两棵 \par
+ *                         子树，注意任意时刻Splay都最少保持有2个节点（开始加入的2个节点） \par
+ * insert(key,k)      ：在第k个节点前插入一个key，首先将节点k-1提升为根，然后将节点k提升 \par
+ *                      为k-1的儿子，此时节点k无左子树，然后将key插入到k的左子树中。 \par
+ *                         要在第k个节点之前插入一段连续的数的操作和一个数差不多。 \par
+*/ \par
+
+题目：reginoal 2012 HangZhou A problem \par
+1: add x \par
+Starting from the arrow pointed element, add x to the number on the clockwise first k2 elements.\par
+ \par
+2: reverse \par
+Starting from the arrow pointed element, reverse the first k1 clockwise elements. \par
+ \par
+3: insert x  \par
+Insert a new element with number x to the right (along clockwise) of the arrow pointed element. \par
+ \par
+4: delete  \par
+Delete the element the arrow pointed and then move the arrow to the right element. \par
+ \par
+5: move x  \par
+x can only be 1 or 2. If x = 1 , move the arrow to the left(along the counterclockwise) element, if x = 2 move the arrow to the right element. \par
+ \par
+6: query \par
+Output the number on the arrow pointed element in one line. \par
+
+\begin{verbatim}
+#include <stdio.h>
+#include <string.h>
+#include <algorithm>
+using namespace std;
+
+#define REP(i,st,ed) for (int i=st; i<ed; i++)
+
+const int MAXN = 102400;
+
+struct splayNode{
+    splayNode *fa,*ch[2];
+    bool rev;
+    int size,key,add;
+    splayNode(int key=0){
+        this->key=key;
+        size=1,add=0,rev=false;
+        fa=ch[0]=ch[1]=NULL;
+    }
+    void clear(){
+        if (ch[0]) ch[0]->clear();
+        if (ch[1]) ch[1]->clear();
+        delete this;
+    }
+    void update(){
+        size=(ch[0]?ch[0]->size:0)+(ch[1]?ch[1]->size:0)+1;
+    }
+    void down(){
+        if (add){
+            if (ch[0]) ch[0]->key+=add,ch[0]->add+=add;
+            if (ch[1]) ch[1]->key+=add,ch[1]->add+=add;
+            add=0;
+        }
+        if (rev){
+            swap(ch[0],ch[1]);
+            if (ch[0]) ch[0]->rev^=1;
+            if (ch[1]) ch[1]->rev^=1;
+            rev=false;
+        }
+    }
+    splayNode* rightmost(){
+        down();
+        if (ch[1]) return ch[1]->rightmost();
+        return this;
+    }
+} *root,*temp;
+
+typedef splayNode* ptr;
+
+int n,m,k1,k2,data[MAXN];
+
+ptr build(int data[], int l, int r, ptr fa=NULL){
+    int mid=(l+r)/2;
+    ptr node=new splayNode(data[mid]);
+    node->fa=fa;
+    if (l<mid) node->ch[0]=build(data,l,mid-1,node);
+    if (mid<r) node->ch[1]=build(data,mid+1,r,node);
+    node->update();
+    return node;
+}
+
+void rotate(ptr x){
+    ptr y=x->fa;
+    if (x->fa=y->fa) y->fa->ch[y->fa->ch[1]==y]=x;
+    int o=y->ch[0]==x;
+    if (y->ch[!o]=x->ch[o]) x->ch[o]->fa=y;
+    x->ch[o]=y;
+    y->fa=x;
+    y->update();
+    x->update();
+}
+
+void splay(ptr x, ptr fa){
+    while (x->fa!=fa){
+        /* this condition are need sometime
+         * if (x->fa->fa) x->fa->fa->down();
+         * if (x->fa) x->fa->down();
+         * x->down();
+        */
+        if (x->fa->fa==fa) rotate(x); else{
+            int o1=x->fa->ch[0]==x,o2=x->fa->fa->ch[0]==x->fa;
+            if (o1==o2) rotate(x->fa),rotate(x); else rotate(x),rotate(x);
+        }
+    }
+}
+
+ptr select(ptr x, int k){
+    x->down();
+    if (x->ch[0]){
+        if (x->ch[0]->size>=k) return select(x->ch[0],k);
+        k-=x->ch[0]->size;
+    }
+    if (k==1) return x;
+    return select(x->ch[1],k-1);
+}
+
+ptr join(ptr x, ptr y){
+    ptr temp=x->rightmost();
+    splay(temp,NULL);
+    temp->ch[1]=y;
+    y->fa=temp;
+    temp->update();
+    return temp;
+}
+
+void del(int k){
+    root=select(root,k);
+    splay(root,NULL);
+    root->ch[0]->fa=root->ch[1]->fa=NULL;
+    root=join(root->ch[0],root->ch[1]);
+}
+
+void insert(int key, int k){
+    root=select(root,k-1);
+    splay(root,NULL);
+    temp=select(root,k);
+    splay(temp,root);
+    temp->ch[0]=new splayNode(key);
+    temp->ch[0]->fa=temp;
+    temp->update();
+    root->update();
+}
+
+void init(){
+    REP(i,1,n+1) scanf("%d",&data[i]);
+    root=build(data,0,n+1);
+}
+
+void solve(){
+    char st[10];
+    int number;
+    REP(i,0,m){
+        scanf("%s",st);
+        if (st[0]=='a'){
+            scanf("%d",&number);
+            root=select(root,1);
+            splay(root,NULL);
+            temp=select(root,k2+2);
+            splay(temp,root);
+            temp->ch[0]->key+=number;
+            temp->ch[0]->add+=number;
+        } else if (st[0]=='r'){
+            root=select(root,1);
+            splay(root,NULL);
+            temp=select(root,k1+2);
+            splay(temp,root);
+            root->ch[1]->ch[0]->rev^=1;
+        } else if (st[0]=='i'){
+            scanf("%d",&number);
+            insert(number,3);
+        } else if (st[0]=='d'){
+            del(2);
+        } else if (st[0]=='m'){
+            scanf("%d",&number);
+            if (number==1){
+                temp=select(root,root->size-1);
+                int key=temp->key;
+                del(root->size-1);
+                insert(key,2);
+            } else{
+                temp=select(root,2);
+                int key=temp->key;
+                del(2);
+                insert(key,root->size);
+            }
+        } else if (st[0]=='q'){
+            root=select(root,2);
+            splay(root,NULL);
+            printf("%d\n",root->key);
+        }
+    }
+    root->clear();
+}
+
+int main(){
+    int ca=0;
+    while (scanf("%d%d%d%d",&n,&m,&k1,&k2)){
+        if (n==0 && m==0 && k1==0 && k2==0) return 0;
+        printf("Case #%d:\n",++ca);
+        init();
+        solve();
+    }
+    return 0;
+}
+\end{verbatim}

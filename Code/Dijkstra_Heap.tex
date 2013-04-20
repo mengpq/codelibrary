@@ -1,0 +1,96 @@
+\subsubsection{Dijkstra+heap}
+\begin{verbatim}
+#include <queue>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+using namespace std;
+
+struct data
+{
+  int len,node;
+  //重载data类型的<
+  bool operator < (const data &a) const
+  {
+    return a.len<len;
+  }
+};
+
+const int maxn=100001;   //最大顶点数
+const int maxm=1000001;  //对大边数
+
+int n,m,st,ed,tot;
+int g[maxn],dist[maxn],next[maxm];
+bool vis[maxn];
+data adj[maxm];
+
+//定义heap q, priority_queue默认是最大堆
+priority_queue<data> q;
+
+void insert(int x, int y, int len)
+{
+  ++tot;
+  adj[tot].len=len;
+  adj[tot].node=y;
+  next[tot]=g[x];
+  g[x]=tot;
+}
+
+void init()
+{
+  scanf("%d%d",&n,&m);
+  tot=0;
+  memset(g,0,sizeof(g));
+  int x,y,len;
+  for (int i=1; i<=m; i++)
+  {
+    scanf("%d%d%d",&x,&y,&len);
+    insert(x,y,len);
+  }
+  scanf("%d%d",&st,&ed);
+}
+
+void solve()
+{
+  memset(vis,0,sizeof(vis));
+  memset(dist,255,sizeof(dist));
+  dist[st]=0;
+  //注意,如果是多组数据的话,要用q.pop()清除完q里面的元素
+  data tmp; tmp.len=0; tmp.node=st; q.push(tmp);
+  while (true)
+  {
+    tmp=q.top();
+    while (!q.empty() && vis[tmp.node])
+    {
+      q.pop();
+      tmp=q.top();
+    }
+    if (q.empty()) break;
+    vis[tmp.node]=true;
+    int k=tmp.node, p=g[tmp.node];
+    while (p!=0)
+    {
+      if (dist[adj[p].node]==-1 || dist[k]+adj[p].len<dist[adj[p].node])
+      {
+        dist[adj[p].node]=dist[k]+adj[p].len;
+        tmp.len=dist[adj[p].node]; tmp.node=adj[p].node;
+        q.push(tmp);
+      }
+      p=next[p];
+    }
+    //如果已经更新到终点ed,则跳出.如果要求起点st到所有点的最短距离的话,忽略之
+    //if (vis[ed]) break;
+  }
+  printf("%d\n",dist[ed]);
+  //if (dist[ed]==-1) printf("-1\n"); else printf("%d\n",dist[ed]);
+}
+
+int main()
+{
+  freopen("Dijkstra.in","r",stdin);
+  freopen("Dijkstra.out","w",stdout);
+    init();
+    solve();
+  return 0;
+}
+\end{verbatim} 

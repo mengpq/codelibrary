@@ -1,0 +1,25 @@
+\subsubsection{无向图割点}
+\begin{verbatim}
+/*
+ * dfn[]表示访问时的编号，lowlink[]表示不经过父子边能访问到的dfn的最小值
+ * 对于v的子节点u，若lowlink[u]>=dfn[v],则v是一个割点。不过对于根节点要特
+ * 判，若根节点的子节点个数>1，那么根节点就是割点。
+ *
+ * 以下算法不能处理重边，如果要处理重边，则需要加一个判断边的id是否被访问
+ * 程序默认1为根节点
+*/
+
+void dfs(int node, int fa){
+    dfn[node]=lowlink[node]=++total;
+    for (int i=0; i<g[node].size(); i++)
+        if (g[node][i]!=fa){
+            if (!dfn[g[node][i]]){
+                dfs(g[node][i],node);
+                lowlink[node]=min(lowlink[node],lowlink[g[node][i]]);
+                if (lowlink[g[node][i]]>=dfn[node]){
+                    if (node==1) ++son; else cutPoint[node]=true;
+                }
+            } else lowlink[node]=min(lowlink[node],dfn[g[node][i]]);
+        }
+}
+\end{verbatim}

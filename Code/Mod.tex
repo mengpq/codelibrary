@@ -1,0 +1,145 @@
+\subsection{组合数取模}
+如果模数为素数，直接求逆元就可以了。否则就把模数因式分解成$\prod_{i=1}^mp_i^{k_i}$，求出组合数模$p^{k_i}$的答案，然后用中国剩余定理把这些解合并。
+如果要求$t$个组合数数$C(n,m)$的对模$Mod$的模，那么总的时间复杂度是$O(t(logn)^2)$级别的。
+
+\begin{verbatim}
+#include <cstring>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+const int MAXN=100001;
+
+struct data{
+    int Pi,P;
+    data(){}
+    data(int Pi, int P):Pi(Pi),P(P){}
+};
+
+struct com{
+    int n,m;
+    com(){}
+    com(int n, int m):n(n),m(m){}
+};
+
+int n,m,ca,Mod;
+vector<com> ask;
+long long factorial[MAXN],power[2];
+
+void init(){
+    int x,y;
+    scanf("%d%d%d",&n,&m,&Mod);
+    ask.clear();
+    for (int i=0; i<m; i++){
+        scanf("%d%d",&x,&y);
+        ask.push_back(com(x,y));
+    }
+}
+
+void extended_gcd(int a, int b, int &x, int &y){
+    if (!b){
+        x=1,y=0;
+    } else{
+        extended_gcd(b,a%b,y,x);
+        y-=(a/b)*x;
+    }
+}
+
+//calc 1/a mod b
+int calcInv(int a, int b){
+    int x,y;
+    extended_gcd(a,b,x,y);
+    return (x%b+b)%b;
+}
+
+vector<data> factorization(int Mod){
+    vector<data> factor;
+    int N=Mod;
+    for (int i=2; i*i<=Mod; i++)
+        if (N%i==0){
+            int temp=1;
+            while (N%i==0){
+                temp*=i;
+                N/=i;
+            }
+            factor.push_back(data(i,temp));
+        }
+    if (N!=1) factor.push_back(data(N,N));
+    return factor;
+}
+
+void initialization(int Pi, int P){
+    factorial[0]=1;
+    for (int i=1; i<min(MAXN,P); i++){
+        if (i%Pi!=0){
+            factorial[i]=factorial[i-1]*i%P;
+        } else factorial[i]=factorial[i-1];
+    }
+    if (P<MAXN){
+        power[1]=factorial[P-1]; power[0]=power[1]*power[1]%P;
+    }
+}
+
+//calc n! mod P
+int calcFactorialMod(int n, int &cnt, int Pi, int P){
+    cnt=0; long long ret=1;
+    for (int i=n; i>=1; i/=Pi){
+        ret=ret*power[(i/P)&1]*factorial[i%P]%P;
+        cnt+=i/Pi;
+    }
+    return ret;
+}
+
+//calculate C(n,m)%P
+int combination(int n, int m, int Pi, int P){
+    if (m>n) return 0;
+    int x,y,cnt1,cnt2,cnt3;
+    long long ret1=calcFactorialMod(n,cnt1,Pi,P);
+    long long ret2=calcFactorialMod(m,cnt2,Pi,P);
+    long long ret3=calcFactorialMod(n-m,cnt3,Pi,P);
+
+    cnt1-=cnt2+cnt3;
+    ret1=ret1*calcInv(ret2*ret3%P,P)%P;
+    for (int i=0; i<cnt1; i++) ret1=ret1*Pi%P;
+    return ret1;
+}
+
+//merge
+pair<int,int> Chinese_remainder(pair<int,int> a, pair<int,int> b){
+    long long p1=a.second,p2=b.second,M=p1*p2;
+    int t1=p2*calcInv(p2,p1)*a.first%M,t2=p1*calcInv(p1,p2)*b.first%M;
+    return make_pair((t1+t2)%M,M);
+}
+
+void solve(){
+    vector<data> factor=factorization(Mod);
+    vector< pair<int,int> > final(ask.size());
+    for (int i=0; i<final.size(); i++) final[i].first=final[i].second=-1;
+    for (int i=0; i<factor.size(); i++){
+        initialization(factor[i].Pi,factor[i].P);
+        for (int j=0; j<ask.size(); j++){
+            pair<int,int> p=make_pair(combination(ask[j].n,ask[j].m,  
+                        factor[i].Pi,factor[i].P),factor[i].P);
+            if (final[j].first==-1){
+                final[j]=p;
+            } else{
+                final[j]=Chinese_remainder(p,final[j]);
+            }
+        }
+    }
+    for (int i=0; i<final.size(); i++)
+        printf("C(%d,%d) Mod %d = %d\n",ask[i].n,ask[i].m,Mod,final[i].first);
+}
+
+int main(){
+    scanf("%d",&ca);
+    for (int i=0; i<ca; i++){
+        init();
+        solve();
+    }
+    return 0;
+}
+\end{verbatim}
+
