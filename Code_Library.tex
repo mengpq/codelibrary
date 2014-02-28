@@ -16,7 +16,7 @@
 \setCJKmonofont{Hiragino Sans GB}
 %设置正文等宽族的 CJK 字体, 影响 \ttfamily 和 \texttt 的字体。 为了有利于等宽字体的 代码对齐等情形, xeCJK 在 ⟨font features⟩ 里增加了 Mono 这个选项。
 
-\setmainfont{Source Code Pro}
+%\setmainfont{Courier}
 %================================================================
 
 \usepackage{latexsym,bm}
@@ -29,7 +29,7 @@
 %CJKbookmarks支持中文标签, colorlinks=true 就是把超链接的边框去掉,但字是红色的
 %用来调页边距
 \author{AcFast}
-\title{Standard Source Code Library}
+\title{Standard Source code Library}
 
 \begin{document}
 
@@ -42,92 +42,94 @@
 \newpage
 \section{\LARGE 算法}
     %\subsection{最短路算法}
-    %\input{Code/Dijkstra_Heap}
-    %\input{Code/SPFA}
+    %\input{code/Dijkstra_Heap}
+    %\input{code/SPFA}
 
     \subsection{网络流算法}
-    \input{Code/Network_mode}
-    \input{Code/SAP}
-    \input{Code/Networkflow_limit}
-    \input{Code/MinCostMaxFlow}
-    %\input{Code/Hungarian_Algorithm}
-    \input{Code/KM}
-    \input{Code/Network_cutpoint}
+    \input{code/Network_mode}
+    \input{code/SAP}
+    \input{code/Networkflow_limit}
+    \input{code/MinCostMaxFlow}
+    %\input{code/Hungarian_Algorithm}
+    \input{code/KM}
+    \input{code/Network_cutpoint}
 
-    %\input{Code/Euler_circuit}
+    %\input{code/Euler_circuit}
 
     \subsection{生成树算法}
-	\input{Code/MST}
-    %\input{Code/Krusal}
-    %\input{Code/Prim}
+	\input{code/MST}
+    %\input{code/Krusal}
+    %\input{code/Prim}
 
 
     \subsection{图算法}
-    %\input{Code/Kosaraju}
-    \input{Code/Cut_Point}
-    \input{Code/Cut_Edge}
-	\input{Code/Tree}
+    %\input{code/Kosaraju}
+    \input{code/Cut_Point}
+    \input{code/Cut_Edge}
+	\input{code/Tree}
 
-    \input{Code/Hamilton}
+    \input{code/Hamilton}
 
     \subsection{最近公共祖先算法}
-    %\input{Code/LCA_RMQ}
-    \input{Code/Tarjan}
-    \input{Code/Ancient_tree}
+    %\input{code/LCA_RMQ}
+    \input{code/Tarjan}
+    \input{code/Ancient_tree}
 
     \subsection{字符串算法}
-    \input{Code/KMP}
-    \input{Code/Manacher}
-    \input{Code/Minimum}
-    \input{Code/Suffix}
+	\input{code/String}
+    \input{code/KMP}
+    \input{code/Manacher}
+    \input{code/Minimum}
+    \input{code/Suffix}
+	\input{code/SuffixAutomata}
 
 \section{\LARGE 数据结构}
     %\subsection{平衡树}
-    %\input{Code/Treap}
-    %\input{Code/BST}
+    %\input{code/Treap}
+    %\input{code/BST}
 
-	\input{Code/Splay}
+	\input{code/Splay}
+	\input{code/LeftistTree}
+    \input{code/Link_cut_tree}
 
-	\input{Code/LeftistTree}
-    \input{Code/Link_cut_tree}
-
-	\input{Code/Persistent_Data_Structures}
+	\input{code/Persistent_Data_Structures}
 
     \subsection{字典树}
-    \input{Code/Trie_tree}
-    \input{Code/Trie_graph}
+    \input{code/Trie_tree}
+    \input{code/Trie_graph}
 
-    \input{Code/Kthnumber}
+    \input{code/Kthnumber}
 
 \section{\LARGE 计算几何}
-    \input{Code/Geometry}
-    \input{Code/Polygon-core}
-    \input{Code/Rectangular}
-	\input{Code/UnionRectange}
-	\input{Code/KD-tree}
+    \input{code/Geometry}
+    \input{code/Polygon-core}
+    \input{code/Rectangular}
+	\input{code/UnionRectange}
+	\input{code/KD-tree}
 
 \section{\LARGE 数学}
-    \input{Code/Conclusion}
-    \input{Code/Extended_gcd}
-    \input{Code/China}
-	\input{Code/Mod}
-    \input{Code/Euler}
-    \input{Code/Head}
-	\input{Code/DetMod}
-	%\input{Code/SG}
+    \input{code/Conclusion}
+    \input{code/Extended_gcd}
+    \input{code/China}
+	\input{code/Mod}
+    \input{code/Euler}
+	\input{code/Mu}
+    \input{code/Head}
+	\input{code/DetMod}
+	%\input{code/SG}
 
     \subsection{特殊数列}
-    \input{Code/Fibonacci}
-    \input{Code/Catalan}
-    \input{Code/Stirling}
-	\input{Code/Schroder}
+    \input{code/Fibonacci}
+    \input{code/Catalan}
+    \input{code/Stirling}
+	\input{code/Schroder}
 
 \section{\LARGE 自定义类型及C++算法}
-    %\input{Code/BigInteger}
-    %\input{Code/FFT}
-    \input{Code/C++note}
-    %\input{Code/Editplus}
-    \input{Code/Vim}
+    %\input{code/BigInteger}
+    %\input{code/FFT}
+    \input{code/C++note}
+    %\input{code/Editplus}
+    \input{code/Vim}
 
 %CJK的时候使用
 %\end{CJK}

@@ -12,19 +12,26 @@ $(2)\sum_{d|n}{\varphi(d)}=n$ \newline
 $(3)a^{\varphi(m)}\equiv 1(mod \quad m)$
 
 ~\\
-$NlogN$求$1~N$的欧拉函数。\par
+线性求$1~N$的欧拉函数。\par
 \begin{verbatim}
-void euler(int n){
-    memset(phi,0,sizeof(phi));
-    phi[1]=1;
-    for (int i=2; i<=n; i++)
-        if (phi[i]==0){
-            phi[i]=i-1;
-            for (int j=i+i; j<=n; j+=i){
-                if (phi[j]==0) phi[j]=j;
-                phi[j]=phi[j]/i*(i-1);
+void calcphi(int n){
+    phi[1] = 1; total = 0;
+    memset(check,0,sizeof(check));
+    for (int i = 2; i <= n; i++){
+        if (!check[i]){
+            phi[i] = i - 1;
+            prime[total++] = i;
+        }
+        for (int j = 0; j < total; j++){
+            if (i * prime[j] > n) break;
+            check[i * prime[j]] = true;
+            if (i % prime[j] == 0){
+                phi[i * prime[j]] = phi[i] * prime[j];
+                break;
+            } else{
+                phi[i * prime[j]] = phi[i] * (prime[j] - 1);
             }
         }
+    }
 }
-
 \end{verbatim}

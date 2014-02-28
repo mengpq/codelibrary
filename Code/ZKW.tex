@@ -1,0 +1,153 @@
+\section{ZKW费用流}
+\begin{verbatim}
+#include <cstdio>
+#include <cstring>
+#include <deque>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+#define foreach(it, s) for (__typeof(s.begin()) it = s.begin(); it != s.end(); ++it)
+
+const int MAX_N = 1024;
+const int MAX_M = MAX_N * MAX_N;
+const int INF = 0x3f3f3f3f;
+
+int cnt = 0, prevCost;
+
+struct    Greap_min_cost_flow {
+    int    ecnt;
+    struct Edge {
+        int to, w, c;
+        Edge *next , *other;
+    }*mat[MAX_N], edges[MAX_M];
+    void link(int x, int to, int w, int c) {
+        edges[ecnt].to = to;
+        edges[ecnt].w = w;
+        edges[ecnt].c = c;
+        edges[ecnt].next = mat[x];
+        edges[ecnt].other = &edges[ecnt+1];
+        mat[x] = &edges[ecnt++];
+
+        edges[ecnt].to = x;
+        edges[ecnt].w = 0;
+        edges[ecnt].c = -c;
+        edges[ecnt].next = mat[to];
+        edges[ecnt].other = &edges[ecnt-1];
+        mat[to] = &edges[ecnt++];
+    }
+
+    int source, remit, piS, cost, f;
+    bool v[MAX_N];
+    bool check(int &x, int y) {
+        if ( x > y ) { x = y; return true; }
+        return false;
+    }
+    bool modlabel_2(){
+        int d = INF;
+        for(int i=0;i<=remit; ++i)if(v[i])
+            for(Edge *p = mat[i]; p; p=p->next)
+                if ( p->w && !v[p->to] && p->c<d ) {
+                    d = p->c;
+                }
+        if(d==INF)return false;
+        for(int i=0;i<=remit; ++i)if(v[i])
+            for(Edge *p = mat[i]; p; p=p->next) {
+                p->c -= d;
+                p->other->c += d;
+            }
+        piS += d;
+        return true;
+    }
+
+    int    aug(int i, int m) {
+        if ( i == remit ) {
+            cost += piS * m;
+            f += m;
+            return m; 
+        }
+        v[i] = 1;
+        int l = m;
+        for( Edge *p =mat[i]; p ;p = p->next )     
+            if ( p->w && !p->c && !v[p->to] ) {
+                int d = aug(p->to, min(p->w, l) );
+                p->w -= d;
+                p->other->w += d;
+                l -= d;
+                if ( !l ) return m;
+            }
+        return m-l;
+    }
+    int clear() {
+        ecnt = 0;
+        cost = f = 0;
+        piS = 0;
+        memset(mat, 0, sizeof(mat) );
+    }
+    int run() {
+        memset(v, 0, sizeof(v) );
+        cost = 0;
+        do {
+            do memset(v, 0, sizeof(v) );
+            while (aug(source, INF) );
+        } while ( modlabel_2() );
+        return cost;
+    }
+
+    void getvertex(vector< pair<int,int> > &ret){
+        ret.clear();
+        vector<int> v;
+        for (Edge *p = mat[source]; p; p = p->next){
+            v.push_back(p->to);
+        }
+        for (int i = 0; i < v.size(); i++)
+            for (Edge *p = mat[v[i]]; p; p = p->next){
+                if (p->to != source && p->w == 0) ret.push_back(make_pair(p->to, v[i]));
+            }
+    }
+}G;
+
+int n, m, r, t, k;
+int total[MAX_N], starttime[MAX_N];
+
+void init(){
+    scanf("%d%d%d%d%d", &n, &m, &r, &t, &k);
+    int S = n + m, T = S + 1, x,  y;
+    G.clear();
+    G.source = S, G.remit = T;
+    for (int i = 0; i < m; i++){
+        G.link(S, i, 1, 0);
+    }
+
+    memset(total, 0, sizeof(total));
+    for (int i = 0; i < k; i++){
+        scanf("%d%d", &x, &y);
+        --x, --y;
+        G.link(y, x + m, 1, 0);
+        ++total[x];
+    }
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < total[i]; j++){
+            if ((j + 1) * r > t) break;
+            G.link(i + m, T, 1, (j + 1) * r);
+        }
+}
+
+void solve(){
+    G.run();
+    printf("%d %d\n", G.f, G.cost);
+    vector< pair<int, int> > ret;
+    G.getvertex(ret);
+    memset(starttime, 0, sizeof(starttime));
+    foreach(it, ret){
+        printf("%d %d %d\n", it->first - m + 1, it->second + 1, starttime[it->first - m]);
+        starttime[it->first - m] += r;
+    }
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim}

@@ -1,73 +1,37 @@
 \subsubsection{Trie树}
 \begin{verbatim}
-#include<iostream>
-#include<cstring>
-#include<cstdio>
-using namespace std;
+struct Trie{
+    int cnt, head;
+    char ch[MAX_M];
+    int g[MAX_M], next[MAX_M];
 
-const int maxn=100001;
-const int maxm=1000001;
-
-string st;
-char ch[maxm];
-int n,m,tot;
-int g[maxn],next[maxm],len[maxm];
-
-int getson(int node, char c)
-{
-  int now=g[node];
-  while (now!=0 && ch[now]!=c) now=next[now];
-  return now;
-}
-
-void init()
-{
-  cin>>n>>m; tot=1;
-  memset(g,0,sizeof(g));
-  //len[now]表示以now这个结点为结束位置的字符串的个数
-  memset(len,0,sizeof(len));
-  for (int i=0; i<n; i++)
-  {
-    cin>>st;
-    int now=1;
-    for (int j=0; j<st.length(); j++)
-    {
-      int son=getson(now,st[j]);
-      if (son>0) now=son; else
-      {
-        ++tot;
-        ch[tot]=st[j];
-        next[tot]=g[now];
-        g[now]=tot;
-        now=tot;
-      }
+    void init(){
+        head = 1;
+        cnt = 1;
     }
-    ++len[now];
-  }
-}
 
-
-void solve()
-{
-  for (int i=1; i<=m; i++)
-  {
-    cin>>st;
-    int now=1;
-    for (int j=0; j<st.length(); j++)
-    {
-      now=getson(now,st[j]);
-      if (now==0) break;
+    inline int getnext(int p){
+        return next[p];
     }
-    if (now!=0 && len[now]>0) cout<<"Find"<<endl; else
-                              cout<<"Not Find"<<endl;
-  }
-}
 
-int main()
-{
-  freopen("trie.in","r",stdin);
-  freopen("trie.out","w",stdout);
-  init();
-  solve();
-}
+    int &operator[](const int &idx){
+        return g[idx];
+    }
+
+    int getson(int node, char c){
+        int p = g[node];
+        while (p && ch[p] != c) p = next[p];
+        return p;
+    }
+
+    int insert(int node, char c){
+        ++cnt;
+        g[cnt] = 0;
+        ch[cnt] = c;
+        next[cnt] = g[node];
+        g[node] = cnt;
+        return cnt;
+    }
+} trie;
+
 \end{verbatim}

@@ -1,93 +1,107 @@
-\subsubsection{最小费用最大流}
+\subsubsection{费用流}
+1、\textbf{求解可行流}： 给定一个网络流图, 初始时每个节点不一定平衡 (每个节点可以有盈余或不足), 每条边的流量可以有上下界, 每条边的当前流量可以不满足上下界约束. 可行流求解中没有源和汇的概念, 算法的目的是寻找一个可以使所有节点都能平衡, 所有边都能满足流量约束的方案, 同时可能附加有最小费用的条件 (最小费用可行流).\par
+~\\
+
+2、\textbf{求解最大流}： 给定一个网络流图, 其中有两个特殊的节点称为源和汇. 除源和汇之外, 给定的每个节点一定平衡. 源可以产生无限大的流量, 汇可以吸收无限大的流量. 标准的最大流模型, 初始解一定是可行的 (例如, 所有边流量均为零), 因此边上不能有下界. 算法的目的是寻找一个从源到汇流量最大的方案, 同时不破坏可行约束, 并可能附加有最小费用的条件 (最小费用最大流). \par
+~\\
+3、\textbf{扩展的最大流}： 在有上下界或有节点盈余的网络流图中求解最大流. 实际上包括两部分, 先是消除下界, 消除盈余, 可能还需要消除不满足最优条件的流量 (最小费用流), 找到一个可行流, 再进一步得到最大流. 因此这里我们的转化似乎是从最大流转化为可行流再变回最大流, 但其实质是将一个过程 (扩展的最大流) 变为了两个过程 (可行流 + 最大流).\par
+
+~\\
+4、\textbf{最小费用流的各种转化}
+\begin{itemize}
+    \item 1.最小费用(可行)流$\to$最小费用最大流
+        \begin{itemize}
+            \item 建立超级源$s'$和超级汇$t'$，对顶点$i$ ，若$e_i > 0$添加便$s' \to i, c = 0, u = e_i$,若$e_i < 0$添加边$i \to t', c = 0, u = -e_i$,之后求从$s'$到$t'$的最小费用最大流,如果流量等于$\sum{e_i}$,就存在可行流，残量网络已在原图上求出.
+        \end{itemize}
+    \item 2.最小费用最大流$\to$最小费用(可行)流
+        \begin{itemize}
+            \item 连边$t\to s, c = -\infty, u = +\infty$,所有点$i$有$e_i = 0$,然后直接球解最小费用最大流.
+        \end{itemize}
+    \item 3.最小费用(可行)流中负权边的消除
+        \begin{itemize}
+            \item 直接将负权边满流
+        \end{itemize}
+    \item 4.最小费用最大流中负权边的消除
+        \begin{itemize}
+            \item 先连边$t\to s, c = 0, u = +\infty$,使用$(3.)$中的方法消除负权边，使用$(1.)$中的方法求出最小费用(可行)流，之后\textbf{距离标号不变}, 再球最小费用最大流;注意此时增广费用不能机械使用源点的标号，而应该是源点会点标号之差。
+        \end{itemize}
+\end{itemize}
+~\\
 \begin{verbatim}
-#include <queue>
-#include <vector>
-#include <iostream>
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
-using namespace std;
-
-const int MAXN=1500;
-const int MAXM=100000;
-const int INF=0x3f3f3f3f;
-
-int n,m,S,T,total;
-queue<int> q;
-bool vis[MAXN];
-int g[MAXN],dist[MAXN],pre[MAXN];
-int f[MAXM],adj[MAXM],cost[MAXM],nex[MAXM];
-
-void ins(int x, int y, int limit, int c){
-    f[total]=limit;
-    cost[total]=c;
-    adj[total]=y;
-    nex[total]=g[x];
-    g[x]=total++;
-
-    f[total]=0;
-    cost[total]=-c;
-    adj[total]=x;
-    nex[total]=g[y];
-    g[y]=total++;
+pair<int,int> operator +(const pair<int,int> &a, const pair<int,int> &b){
+    return make_pair(a.first + b.first, a.second + b.second);
 }
 
-void init(){
-    int x,y,len;
-    total=0;
-    memset(g,255,sizeof(g));
-    scanf("%d%d",&n,&m);
-    for (int i=0; i<m; i++){
-        scanf("%d%d%d",&x,&y,&len);
-        ins(x,y,1,len);
-        ins(y,x,1,len);
+struct netwrok{
+    static const int MAX_N = 256;
+    static const int MAX_M = 102400;
+    static const int INF = 0x3f3f3f3f;
+
+    bool vis[MAX_N];
+    int n, cnt, S, T, flow;
+    int g[MAX_N], dist[MAX_N], pre[MAX_N];
+    int f[MAX_M], adj[MAX_M], next[MAX_M], cost[MAX_M];
+
+    void ins(int x, int y, int limit, int c){
+        f[cnt] = limit;
+        cost[cnt] = c;
+        adj[cnt] = y;
+        next[cnt] = g[x];
+        g[x] = cnt++;
+
+        f[cnt] = 0;
+        cost[cnt] = -c;
+        adj[cnt] = x;
+        next[cnt] = g[y];
+        g[y] = cnt++;
     }
-    S=n+1; T=S+1;
-    ins(S,1,2,0); ins(n,T,2,0);
-}
 
-bool SPFA(){
-    memset(vis,0,sizeof(vis));
-    memset(dist,60,sizeof(dist));
-    int maxlong=dist[S]; dist[S]=0;
-    q.push(S); vis[S]=true;
-    while (!q.empty()){
-        int node=q.front(); q.pop();
-        for (int p=g[node]; p!=-1; p=nex[p])
-            if (f[p]>0 && dist[node]+cost[p]<dist[adj[p]]){
-                dist[adj[p]]=dist[node]+cost[p];
-                pre[adj[p]]=p;
-                if (!vis[adj[p]]){
-                    q.push(adj[p]);
-                    vis[adj[p]]=true;
+    void init(int _n, int _S, int _T){
+        n = _n, S = _S, T = _T;
+        cnt = 0;
+        memset(g, 255, sizeof(g));
+    }
+
+    bool spfa(){
+        memset(vis, 0, sizeof(vis));
+        memset(dist, 0x3f, sizeof(dist));
+        queue<int> q;
+        q.push(S);
+        vis[S] = true;
+        dist[S] = 0;
+        while (!q.empty()){
+            int node = q.front(); q.pop();
+            for (int p = g[node]; p != -1; p = next[p]){
+                if (f[p] > 0 && dist[node] + cost[p] < dist[adj[p]]){
+                    dist[adj[p]] = dist[node] + cost[p];
+                    pre[adj[p]] = p;
+                    if (!vis[adj[p]]){
+                        q.push(adj[p]);
+                        vis[adj[p]] = true;
+                    }
                 }
             }
-        vis[node]=false;
+            vis[node] = false;
+        }
+        return dist[T] != INF;
     }
-    return dist[T]!=maxlong;
-}
 
-int AugPath(){
-    int COST=0,F=INF;
-    for (int i=T; i!=S; i=adj[pre[i]^1]) F=min(F,f[pre[i]]);
-    for (int i=T; i!=S; i=adj[pre[i]^1]){
-        COST+=F*cost[pre[i]];
-        f[pre[i]]-=F;
-        f[pre[i]^1]+=F;
+    pair<int,int> augPath(){
+        int C = 0, F = INF;
+        for (int i = T; i != S; i = adj[pre[i] ^ 1]) F = min(F, f[pre[i]]);
+        for (int i = T; i != S; i = adj[pre[i] ^ 1]){
+            C += F * cost[pre[i]];
+            f[pre[i]] -= F;
+            f[pre[i] ^ 1] += F;
+        }
+        return make_pair(F, C);
     }
-    return COST;
-}
 
-void solve(){
-    int COST=0;
-    while (SPFA()) COST+=AugPath();
-    printf("%d\n",COST);
-}
-
-int main(){
-    init();
-    solve();
-    return 0;
-}
-
+    //ret.first -> flow, ret.second -> cosst
+    pair<int,int> maxflow(){
+        pair<int,int> ret;
+        while (spfa()) ret = ret + augPath();
+        return ret;
+    }
+} g;
 \end{verbatim}

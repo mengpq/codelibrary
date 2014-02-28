@@ -1,0 +1,26 @@
+\subsection{莫比乌斯函数}
+当$n=1$时$\mu(n)=1$，当$n=p_1p_2\cdots p_k$时，$\mu(n)=(-1)^k$，其余情况$\mu(n)=0$.
+
+\begin{verbatim}
+void calcmu(int n){
+    memset(check,0,sizeof(check));
+    mu[1] = 1; total = 0;
+    for (int i = 2; i <= n; i++){
+        if (!check[i]){
+            prime[total++] = i;
+            mu[i] = -1;
+        }
+        for (int j = 0; j < total; j++){
+            if (i * prime[j] > n) break;
+            check[i * prime[j]] = true;
+            if (i % prime[j] == 0){
+                mu[i * prime[j]] = 0;
+                break;
+            } else{
+                mu[i * prime[j]] = -mu[i];
+            }
+        }
+    }
+    for (int i = 1; i <= n; i++) printf("%d %d\n",i,mu[i]);
+}
+\end{verbatim}

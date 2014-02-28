@@ -1,0 +1,148 @@
+\subsubsection{后缀自动机} 
+~\\
+1、后缀自动机的的节点分为接受态和非接受态两种，接受态表示这个节点可以接收当前字符串的后缀，即从出发点走到接受态的节点的路径(字符串)是当前字符串的后缀从。从结束态(最后一个字符)沿着parent一直走到初始状态，所经过的节点就是接受态的节点。\par
+~\\
+2、构造字符串S的后缀自动机，从起始点出发，到达任意一个接受态的路径是字符串S的后缀，从起始点到一个接受态a，最多不会超过n条路径(表示最多有n个后缀)，对于两个不同的接受态a和b，从起始点出发到a，b的路径集合要么是包含关系，要么是不相交。\par
+~\\
+3、从起始点出发，到达任意一个顶点a的路径p是字符串S的一个子串，后缀自动机保证了从起始点出发到达任意点的路径都是不同的。假设从起始点出发，到达一个节点$a_i$的路径数$n_i$，那么字符串S的所有不同的子串的个数为$\sum_{a_i}n_i$。\par
+~\\
+4、假设从出发点到一个节点$a$的所有路径为$\{p_i\}$，那么对于任意$len(p_i) < len(p_j)$，$p_i$是$p_j$的后缀。\par
+~\\
+5、构造完后缀自动机之后，要解决问题一般可以dfs遍历自动机，或者用桶排序根据自动机的每个节点的maxL构造出拓扑图，然后在拓扑图上求解。\par
+~\\
+
+题目：\par
+\begin{itemize}
+    \item 1.给出字符串$S$以及$q$个询问，每个询问给出一个字符串$sub$，问字符串$sub$在$S$出现的次数。
+        \begin{itemize}
+            \item 从起始点出发，按照$sub$的字母顺序走到状态$a$，假设状态$a$有$m$条不同的路径能走到某个接受态，那么$sub$在$S$中出现的次数为$m$。
+        \end{itemize}
+    \item 2.给出字符串$S_1$,$S_2$，求这两个串的最长公共子串。
+        \begin{itemize}
+            \item 首先用$S_1$构造后缀自动机，然后按照$S_2$的字母顺序在自动机上遍历。
+            \item 假设当前自动机上的节点为$a$，对于$S_2[i]$，如果$a$有$S_2[i]$这个儿子，那么当前的长度maxL + 1，将$a$转移到$a->ch[S_2[i]]$。如果$a$没有$S_2[i]$这个儿子，那么沿着$a$的parent往走，走到$a$为空或者$a$存在一个$S_2[i]$的儿子节点为止，当$a$存在一个$S_2[i]$的儿子，将maxL设为$a->ch[S_2[i]]->maxL$，否则$maxL = 0$。
+            \item 每走一步都尝试更新最长公共字串的答案。
+        \end{itemize}
+    \item 3.求多个字符串$S_1, S_2, \cdots, S_n$的最长公共子串。
+        \begin{itemize}
+            \item 首先选一个字符串$S_1$构造后缀自动机。
+            \item 对于其他$S_i$，按照字母顺序在自动机上遍历，走到自动机上的一个状态$a$，更新这个状态的$maxL$得到最大值，设为$maxL_i[a]$。
+            \item 因为从起始点出发，到达同一个节点$a$的路径两两之间的有后缀关系，所以对于某个某个状态$a$，$S_2,\cdots,S_n$走到这个状态的$maxL$的最小值就是走到这个状态的所有串的最长公共子串。所以$n$个串的最长公共字串的值就是$max(min(maxL_i[a])), (2\leq i\leq n)$。
+        \end{itemize}
+\end{itemize}
+
+~\\
+以下程序为给出$n$个串，求出他们的最长公共子串的长度。
+
+\begin{verbatim}
+#include <stdio.h>
+#include <string.h>
+
+const int MAX_N = 100001;
+
+struct SAMnode{
+    int maxL;
+    SAMnode *ch[26], *parent;
+};
+
+struct SAM{
+    int cnt;
+    SAMnode *start, *end;
+    SAMnode pool[MAX_N * 2];
+
+    void init(){
+        cnt = 0;
+        start = end = &pool[cnt++];
+    }
+
+    SAMnode &operator [](const int &id){
+        return pool[id];
+    }
+
+    void push_back(int c, int maxL){
+        SAMnode *np = &pool[cnt++], *p = end;
+        np->maxL = maxL;
+        for (; p && !p->ch[c]; p = p->parent) p->ch[c] = np;
+        end = np;
+        if (!p){
+            np->parent = start;
+        } else{
+            if (p->ch[c]->maxL == p->maxL + 1){
+                np->parent = p->ch[c];
+            } else{
+                SAMnode *q = &pool[cnt++], *r = p->ch[c];
+                *q = *r;
+                q->maxL = p->maxL + 1;
+                np->parent = r->parent = q;
+                for (; p && p->ch[c] == r; p = p->parent) p->ch[c] = q;
+            }
+        }
+    }
+} sam;
+
+char str[MAX_N];
+int n;
+int f[MAX_N * 2], g[MAX_N * 2], v[MAX_N], q[MAX_N * 2];
+
+void init(){
+    scanf("%s", str);
+    sam.init();
+    n = strlen(str);
+    for (int i = 0; i < n; i++) sam.push_back(str[i] - 'a', i + 1);
+}
+
+void updata(int &x, int y){
+    if (x < y) x = y;
+}
+
+void getans(char *str){
+    memset(g, 0, sizeof(g));
+    int n = strlen(str);
+    SAMnode *p = sam.start;
+    int maxL = 0;
+    for (int i = 0; i < n; i++){
+        int c = str[i] - 'a';
+        if (p->ch[c]){
+            p = p->ch[c];
+            ++maxL;
+            updata(g[p - sam.pool], maxL);
+            SAMnode *pp = p->parent;
+        } else{
+            while (p && !p->ch[c]) p = p->parent;
+            if (!p) maxL = 0; else maxL = p->maxL + 1;
+            if (!p) p = sam.start; else p = p->ch[c];
+            updata(g[p - sam.pool], maxL);
+            SAMnode *pp = p->parent;
+        }
+    }
+
+    for (int i = sam.cnt; i >= 1; i--){
+        SAMnode *p = &sam[i];
+        if (p->parent) updata(g[p->parent - sam.pool], g[p - sam.pool]);
+    }
+}
+
+int min(int a, int b){
+    return a < b?a:b;
+}
+
+void solve(){
+    for (int i = 0; i < sam.cnt; i++) v[sam[i].maxL]++;
+    for (int i = 1; i <= n; i++) v[i] += v[i - 1];
+    for (int i = 0; i <= sam.cnt; i++) q[v[sam[i].maxL]--] = i;
+    int ret = 0;
+    for (int i = 0; i < sam.cnt; i++) f[i] = sam[i].maxL;
+    while (~scanf("%s", str)){
+        getans(str);
+        for (int i = 0; i < sam.cnt; i++) f[i] = min(f[i], g[i]);
+    }
+    for (int i = 0; i < sam.cnt; i++) updata(ret, f[i]);
+    printf("%d\n", ret);
+}
+
+int main(){
+    init();
+    solve();
+    return 0;
+}
+\end{verbatim}

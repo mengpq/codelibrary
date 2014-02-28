@@ -1,7 +1,7 @@
 \subsection{C++note}
 \begin{verbatim}
 g++增栈，放在main函数第一句话
-int SIZE=10<<20; //支持10W节点的数的递归
+int SIZE = (1<<20) * 10; //10M 
 char *p=(char*)malloc(SIZE)+SIZE;
 __asm__("movl %0, %%esp\n" :: "r"(p));
 

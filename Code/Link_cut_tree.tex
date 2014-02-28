@@ -1,20 +1,17 @@
 \subsection{树链剖分}
 \begin{verbatim}
 /*
- * nextNode[i]表示树链剖分时第i个节点的下一个节点，如果没有则为-1
+ * hson[i]表示i这个节点所连接的那条重边对应的子节点编号
  *
- * chain[i-th]存储第i条链的三个信息：链头的父亲节点、链头及链尾节
- * 点在线段树中的编号。
- *
- * nodeInfo[i]存储树中第i个节点的两个信息：在线段树中的编号pos,
- * 所属的链的编号part。
+ * top[i]表示i这个节点所属的那条链的链头节点编号
+ * 
+ * idx[i]表示编号唯i的节点在线段树中的编号，一条链在线段树上的编号是连续的
  *
  * 树链剖分的步骤：
- * 1、遍历整棵树，找子树节点个数最大的子节点作为主链。
- * 2、遍历轻重边，把原树上的节点与其在线段树的节点对应。
- * 记录每条链在线段树中的位置以及链头所链接的父亲节点。
- * 3、在询问路径时，从一个节点一直往LCA走，直到查询节点
- * 和LCA在同一条链为止。
+ * 1、遍历整棵树，找子树节点个数最大的子节点作为主链
+ * 2、遍历轻重边，把原树上的节点与其在线段树的节点对应
+ * 记录每条链在线段树中的位置以及链头所链接的父亲节点
+ * 3、在询问路径时，每次两个节点深度较大的网上跳，直到两个节点在同一条链上为止。
  *
  * 每次询问的时间复杂度为O((logN)^2)
  *
@@ -22,182 +19,104 @@
  * 增加一个值。
  *
 */
+#pragma comment(linker, "/STACK:16777216")
 
-#include <vector>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 #include <algorithm>
 using namespace std;
 
-#pragma comment(linker, "/STACK:16777216")
+const int MAX_N = 100001;
 
-const int MAXN=110001;
-const int MAXM=110001;
-
-struct query{
-    int node,id;
-    query(int node=0, int id=0):node(node),id(id){}
-};
-
-struct opt_data{
-    char ch;
-    int U,V;
-};
-
-struct node_data{
-    int pos,part;
-};
-
-struct chain_data{
-    int father,le,ri;
-};
-
-int n,m;
-bool visit[MAXN];
-int lca[MAXM];
-int father[MAXN],tree[4*MAXN],nextNode[MAXN];
-opt_data opt[MAXM];
-vector<int> graph[MAXN];
-vector<query> q[MAXN];
-chain_data chain[MAXN];
-node_data nodeInfo[MAXN];
+int n,totalSize;
+int size[MAX_N],top[MAX_N],depth[MAX_N],idx[MAX_N],hson[MAX_N],parent[MAX_N];
+int tree[MAX_N * 4];
+vector<int> g[MAX_N];
 
 void init(){
     int x,y;
-    memset(graph,0,sizeof(graph));
-    scanf("%d\n",&n);
-    for (int i=1; i<n;i++){
-        scanf("%d%d\n",&x,&y);
-        graph[x].push_back(y);
-        graph[y].push_back(x);
-    }
-    
-    memset(q,0,sizeof(q));
-    scanf("%d\n",&m);
-    for (int i=0; i<m; i++){
-        scanf("%c %d %d\n",&opt[i].ch,&opt[i].U,&opt[i].V);
-        if (opt[i].ch=='G'){
-            q[opt[i].U].push_back(query(opt[i].V,i));
-            q[opt[i].V].push_back(query(opt[i].U,i));
-        }
+    scanf("%d",&n);
+    for (int i = 1; i <= n; i++) g[i].clear();
+    for (int i = 1; i < n; i++){
+        scanf("%d%d",&x,&y);
+        g[x].push_back(y);
+        g[y].push_back(x);
     }
 }
 
-int find(int k){
-    int x,y=k;
-    while (father[y]!=y) y=father[y];
-    while (k!=y){
-        x=father[k];
-        father[k]=y;
-        k=x;
+void dfs(int node){
+    size[node] = 1, hson[node] = -1;
+    for (int i = 0; i < g[node].size(); i++) if (g[node][i] != parent[node]){
+        int son = g[node][i];
+        depth[son] = depth[node] + 1;
+        parent[son] = node;
+        dfs(son);
+        size[node] += size[son];
+        if (hson[node] == -1 || size[son] > size[hson[node]]) hson[node] = son;
     }
-    return y;
 }
 
-/*
- * Travel the tree and mark chain's node select one node 
- * with max subtree size,add this node to the main chain.
- * Calculate the LCA for each query at the meantime.
-*/
-int dfs(int node){
-    visit[node]=true;
-    int maxSize=0,selectNode,sum=0;
-    for (int i=0; i<graph[node].size(); i++)
-        if (!visit[graph[node][i]]){
-            int temp=dfs(graph[node][i]);
-            father[graph[node][i]]=node;
-            sum+=temp;
-            if (temp>maxSize){
-                maxSize=temp;
-                selectNode=graph[node][i];
-            }
-        }
-    if (maxSize>0){
-        nextNode[node]=selectNode;
+void build(int node, int tp){
+    idx[node] = ++totalSize; 
+    top[node] = tp;
+    if (hson[node] != -1) build(hson[node], tp);
+    for (int i = 0; i < g[node].size(); i++){
+        int son = g[node][i];
+        if (son != hson[node] && son != parent[node]) build(son,son);
     }
-    for (int i=0; i<q[node].size(); i++)
-        if (visit[q[node][i].node])
-            lca[q[node][i].id]=find(q[node][i].node);
-    return sum+1;
 }
 
-/*
- * Travel the tree again,mapping the tree's node onto
- * the segment-tree.
-*/
-void travel(int node, int &totalPart, int &totalNode){
-    visit[node]=true;
-    nodeInfo[node].pos=++totalNode;
-    nodeInfo[node].part=totalPart;
-    if (nextNode[node]==-1){
-        chain[totalPart].ri=totalNode;
-    } else{
-        travel(nextNode[node],totalPart,totalNode);
-    }
-
-    for (int i=0; i<graph[node].size(); i++)
-        if (!visit[graph[node][i]]){
-            ++totalPart;
-            chain[totalPart].father=node;
-            chain[totalPart].le=totalNode+1;
-            travel(graph[node][i],totalPart,totalNode);
-        }
-}
-
-int ask(int l, int r, int state, int &L, int &R){
-    if (L>r || l>R) return -0x7FFFFFFF;
-    if (L<=l && r<=R) return tree[state];
-
-    int mid=(l+r)/2;
-    return max(ask(l,mid,state*2,L,R),ask(mid+1,r,state*2+1,L,R));
-}
-
-void change(int l, int r, int state, int &L, int &R, int &value){
-    if (L>r || l>R) return;
-    if (L<=l && r<=R){
-        tree[state]+=value;
+void change(int x, int y, int state, int L, int R, int value){
+    if (L > y || x > R) return;
+    if (L <= x && y <= R){
+        tree[state] += value;
         return;
     }
-    
-    int mid=(l+r)/2;
-    change(l,mid,state*2,L,R,value);
-    change(mid+1,r,state*2+1,L,R,value);
-    tree[state]=max(tree[state*2],tree[state*2+1]);
+
+    int mid = (x + y) / 2;
+    change(x, mid, state * 2, L, R, value);
+    change(mid + 1, y, state * 2 + 1, L, R, value);
+    tree[state] = max(tree[state * 2], tree[state * 2 + 1]);
 }
 
-int ask_max(int node, int LCA){
-    int ret=-0x7FFFFFFF;
-    while (nodeInfo[node].part!=nodeInfo[LCA].part){
-        int part=nodeInfo[node].part,le=chain[part].le,ri=nodeInfo[node].pos;
-        if (le>ri) swap(le,ri);
-        ret=max(ret,ask(1,n,1,le,ri));
-        node=chain[part].father;
+int ask(int x, int y, int state, int L, int R){
+    if (L > y || x > R) return 0;
+    if (L <= x && y <= R) return tree[state];
+
+    int mid = (x + y) / 2;
+    return max(ask(x, mid, state * 2, L, R), ask(mid + 1, y, state * 2 + 1, L, R));
+}
+
+int query_max(int x, int y){
+    int tpx = top[x], tpy = top[y], ret = 0;
+    while (tpx != tpy){
+        if (depth[tpx] < depth[tpy]) swap(tpx,tpy), swap(x,y);
+        ret = max(ret, ask(1, n, 1, idx[tpx], idx[x]));
+        x = parent[tpx], tpx = top[x];
     }
-    int le=nodeInfo[node].pos,ri=nodeInfo[LCA].pos;
-    if (le>ri) swap(le,ri);
-    ret=max(ret,ask(1,n,1,le,ri));
+    if (depth[x] > depth[y]) swap(x,y);
+    ret = max(ret, ask(1, n, 1, idx[x], idx[y]));
     return ret;
 }
 
 void solve(){
-    memset(visit,0,sizeof(visit));
-    memset(nextNode,255,sizeof(nextNode));
-    for (int i=1; i<=n; i++) father[i]=i;
     dfs(1);
-
-    memset(visit,0,sizeof(visit));
-    int totalPart=1,totalNode=0;
-    chain[1].le=1;
-    travel(1,totalPart,totalNode);
-
+    totalSize = 0;
     memset(tree,0,sizeof(tree));
-    for (int i=0; i<m; i++){
-        if (opt[i].ch=='G'){
-            printf("%d\n",max(ask_max(opt[i].U,lca[i]),
-                    ask_max(opt[i].V,lca[i])));
+    build(1,1);
+
+    char st[3];
+    int m,x,y,value;
+    scanf("%d",&m);
+    for (int i = 0; i < m; i++){
+        scanf("%s",st);
+        if (st[0] == 'I'){
+            scanf("%d%d",&x,&value);
+            change(1, n, 1, idx[x], idx[x], value);
         } else{
-            change(1,n,1,nodeInfo[opt[i].U].pos,
-                    nodeInfo[opt[i].U].pos,opt[i].V);
+            scanf("%d%d",&x,&y);
+            printf("%d\n",query_max(x,y));
         }
     }
 }

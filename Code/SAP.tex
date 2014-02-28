@@ -1,119 +1,112 @@
 \subsubsection{SAP}
 \begin{verbatim}
 #include <queue>
-#include <cstdio>
 #include <cstring>
-#include <iostream>
 #include <algorithm>
 using namespace std;
 
-const int MAXN=102401;
-const int MAXM=256000;
-const int INF=0x7FFFFFFF;
+const int MAX_N = 102401;
+const int MAX_M = 256000;
+const int INF = 0x3f3f3f3f;
 
-/*
- * totalNode是网络图总的顶点数
- * S，T分别为源点和汇点
- *
- * 在做SAP之前，先用BFS从T点遍历反向边给每个点距离标号
-*/
+struct SAP{
+    //S -> source, T -> sink 
+    //n -> |V|, cnt -> 2 * |E|
+    int S, T, n, cnt;
+    int f[MAX_M], adj[MAX_M], next[MAX_M];
+    int g[MAX_N], last[MAX_N], h[MAX_N], vh[MAX_N];
 
-int n,m,S,T,total,totalNode;
-int f[MAXM],next[MAXM],adj[MAXM];
-int g[MAXN],last[MAXN],h[MAXN],vh[MAXN];
-
-void ins(int x, int y, int limit){
-    f[total]=limit;
-    adj[total]=y;
-    next[total]=g[x];
-    g[x]=total++;
-
-    f[total]=0;
-    adj[total]=x;
-    next[total]=g[y];
-    g[y]=total++;
-}
-
-void init(){
-    int x,y,limit;
-    total=0;
-    memset(g,255,sizeof(g));
-    totalNode=n;
-    scanf("%d%d",&n,&m);
-    for (int i=0; i<m; i++){
-        scanf("%d%d%d",&x,&y,&limit);
-        ins(x,y,limit);
+    void init(int _n){
+        n = _n;
+        cnt = 0;
+        for (int i = 0; i < n; i++) g[i] = -1;
     }
-}
 
-int dfs(int node, int add){
-    if (node==T) return add;
-    int minh=totalNode+1,p=last[node],y,temp;
-    do{
-        if (f[p]>0){
-            y=adj[p];
-            if (h[node]==h[y]+1){
-                temp=dfs(y,min(add,f[p]));
-                if (temp>0){
-                    f[p]-=temp;
-                    f[p^1]+=temp;
-                    last[node]=p;
-                    return temp;
+    void addedge(int x, int y, int limit){
+        f[cnt] = limit;
+        adj[cnt] = y;
+        next[cnt] = g[x];
+        g[x] = cnt++;
+
+        f[cnt] = 0;
+        adj[cnt] = x;
+        next[cnt] = g[y];
+        g[y] = cnt++;
+    }
+
+    void BFS(int T){
+        for (int i = 0; i < n; i++){
+            h[i] = -1;
+            vh[i] = 0;
+        }
+        vh[h[T] = 0] = 1;
+        queue<int> q;
+        q.push(T);
+        while (!q.empty()){
+            int node=q.front(); q.pop();
+            for (int p = g[node]; p != -1; p = next[p]){
+                /* p % 2 == 1 indicate reverse edge
+                 * h[adj[p]] == -1 indicate the node isn't label
+                */
+                if ((p&1) && h[adj[p]] == -1){ 
+                    ++vh[h[adj[p]] = h[node] + 1];
+                    q.push(adj[p]);
                 }
             }
-            if (h[S]>totalNode) return 0;
-            minh=min(minh,h[y]+1);
-        }
-        p=next[p];
-        if (p==-1) p=g[node];
-    } while (p!=last[node]);
-
-    if (--vh[h[node]]==0) h[S]=totalNode+1;
-    ++vh[h[node]=minh];
-    return 0;
-}
-
-/*
- * 从汇点T遍历反向边给点标号，如果是无向图就随便遍历
-*/
-
-void BFS(int T){
-    memset(h,255,sizeof(h));
-    memset(vh,0,sizeof(vh));
-    vh[h[T]=0]=1;
-    queue<int> q;
-    q.push(T);
-    while (!q.empty()){
-        int node=q.front(); q.pop();
-        for (int p=g[node]; p!=-1; p=next[p]){
-            //p%2==1表示反向边，h[adj[p]]==-1表示该节点未被标号
-            if ((p&1) && h[adj[p]]==-1){ 
-                ++vh[h[adj[p]]=h[node]+1];
-                q.push(adj[p]);
-            }
         }
     }
-}
 
-int maxFlow(){
-	if (g[S]==-1){
-		/* no flow */
-		return 0;
-	}
-    BFS(T);
-    for (int i=1; i<=totalNode; i++) last[i]=g[i];
-    int flow=0;
-    while (h[S]<=totalNode) flow+=dfs(S,INF);
-    return flow;
-}
+    int dfs(int node, int add){
+        if (node == T) return add;
+        int minh = n, p = last[node];
+        do{
+            if (f[p] > 0){
+                int y = adj[p];
+                if (h[node] == h[y] + 1){
+                    int temp = dfs(y, min(add, f[p]));
+                    if (temp > 0){
+                        f[p] -= temp;
+                        f[p ^ 1] += temp;
+                        last[node] = p;
+                        return temp;
+                    }
+                }
+                if (h[S] >= n) return 0;
+                minh = min(minh, h[y] + 1);
+            }
+            p = next[p];
+            if (p == -1) p = g[node];
+        } while (p != last[node]);
 
-void solve(){
-    cout<<maxFlow()<<endl;
-}
+        if (--vh[h[node]] == 0) h[S] = n;
+        ++vh[h[node] = minh];
+        return 0;
+    }
 
-int main(){
-    init();
-    solve();
-    return 0;
-}
+    int maxflow(int _S, int _T){
+        S = _S, T = _T;
+        if (g[S] == -1){
+            //the graph not connected with source
+            return -1;
+        }
+
+        /* make label with BFS, sometime the effect is good 
+        BFS(T);
+        for (int i = 0; i < n; i++){
+            last[i] = g[i];
+        }
+        */
+        
+        //don't make label with BFS
+        for (int i = 0; i < n; i++){
+            h[i] = vh[i] = 0;
+            last[i] = g[i];
+        }
+        //end
+
+        int flow = 0;
+        while (h[S] < n) flow += dfs(S, INF);
+        return flow;
+    }
+} network_flow;
 \end{verbatim} 

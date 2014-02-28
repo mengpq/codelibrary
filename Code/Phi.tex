@@ -1,0 +1,22 @@
+\subsubsection{线性求解欧拉函数}
+\begin{verbatim}
+void calcphi(int n){
+    phi[1] = 1; total = 0;
+    memset(check,0,sizeof(check));
+    for (int i = 2; i <= n; i++){
+        if (!check[i]){
+            phi[i] = i - 1;
+            prime[total++] = i;
+        }
+        for (int j = 0; j < total; j++){
+            check[i * prime[j]] = true;
+            if (i % prime[j] == 0){
+                phi[i * prime[j]] = phi[i] * prime[j];
+                break;
+            } else{
+                phi[i * prime[j]] = phi[i] * (prime[j] - 1);
+            }
+        }
+    }
+}
+\end{verbatim}

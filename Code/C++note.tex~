@@ -1,0 +1,23 @@
+\subsection{C++note}
+\begin{verbatim}
+1、输入小数 printf("%.2f",ans) 表示保留两位小数
+
+2、sprintf(ans,"%d",n) 表示将n这个数字换成字符数组存储在字符数组ans中
+
+3、scanf读入double: scanf("%lf",&ans) printf输出double: printf("%.2f",ans) 表示输出ans，保留2位小数
+
+4、C++ASCII码: 获取一个字符的ASCII码:强行转换int num=(int) ch; 将一个int转换成字母char ch=97; 则ch=='a'
+
+5、stringstream sin(st); 然后就可以用sin在st中读入需要的数据了。
+例如st="12345 abc 12345" 那么sin>>num1>>st1>>num就可以读入两个数字和一个字符串了
+   ostringstream sout; //可以将整数、小数变成字符串
+   sout<<t;  //t的类型可以是整数、小数或者bool类型
+   string st=sout.str() 将t的类型转换成字符串存储于st
+注意：如果编译器版本过低，可能不能使用上面的东西，所以在练习赛的时候要测试一下环境
+
+6、set,map中寻找比number小的最大的数，或者比number大的最小的数，可以先用lower_bound找到一个数,然后用--iter 或者 ++iter找到与之相邻的数。要注意的是,如果iter==set.begin()，那么--iter的值还是set.begin()，但++iter可以等于set.end(),所以,如果iter==set.begin()，则--iter的值不存在,如果++iter==set.end()则该元素不存在
+
+7、priority_queue 默认是最大堆，如果要改成最小堆
+priority_queue<int, vector<int> , greater<int> > heap; 如果是自定义类型，可以重定义<号
+
+\end{verbatim}
