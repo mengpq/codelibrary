@@ -11,12 +11,12 @@ struct data
 };
 
 const int maxn=1000001;
-const int maxm=1000001;
+const int kMaxM=1000001;
 
 int n,m,st,ed,tot;
 bool vis[maxn];
-int g[maxn],dist[maxn],next[maxm],q[maxn];
-data adj[maxm];
+int g[maxn],dist[maxn],next[kMaxM],q[maxn];
+data adj[kMaxM];
 
 void insert(int &x, int &y, int &len)
 {
@@ -61,7 +61,7 @@ void solve()
         if (!vis[adj[p].node])
         {
           vis[adj[p].node]=true;
-          //必要的时候可以用循环队列q[(++las)%maxm]=adj[p].node
+          //必要的时候可以用循环队列q[(++las)%kMaxM]=adj[p].node
           q[++las]=adj[p].node;
         }
       }

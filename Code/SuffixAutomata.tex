@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const int MAX_N = 100001;
+const int kMaxN = 100001;
 
 struct SAMnode{
     int maxL;
@@ -48,7 +48,7 @@ struct SAMnode{
 struct SAM{
     int cnt;
     SAMnode *start, *end;
-    SAMnode pool[MAX_N * 2];
+    SAMnode pool[kMaxN * 2];
 
     void init(){
         cnt = 0;
@@ -80,9 +80,9 @@ struct SAM{
     }
 } sam;
 
-char str[MAX_N];
+char str[kMaxN];
 int n;
-int f[MAX_N * 2], g[MAX_N * 2], v[MAX_N], q[MAX_N * 2];
+int f[kMaxN * 2], g[kMaxN * 2], v[kMaxN], q[kMaxN * 2];
 
 void init(){
     scanf("%s", str);

@@ -30,13 +30,13 @@ struct node_data{
     node_data(int node=0, int len=0):node(node),len(len){}
 };
 
-const int MAXN=100001;
+const int kMaxN=100001;
 
 int n,limit;
-bool active[MAXN],visit[MAXN];
-int total[MAXN];
+bool active[kMaxN],visit[kMaxN];
+int total[kMaxN];
 vector<int> nodeList;
-vector<node_data> g[MAXN];
+vector<node_data> g[kMaxN];
 vector< pair<int,int> > data;
 
 void init(){

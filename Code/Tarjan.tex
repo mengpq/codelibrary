@@ -8,8 +8,8 @@
 #include <cstring>
 using namespace std;
 
-const int MAXN=100001;
-const int MAXM=100001;
+const int kMaxN=100001;
+const int kMaxM=100001;
 
 struct query{
     int node,id;
@@ -17,11 +17,11 @@ struct query{
 };
 
 int n,m;
-bool visit[MAXN];
-int lca[MAXM];
-int father[MAXN];
-vector<int> g[MAXN];
-vector<query> q[MAXN];
+bool visit[kMaxN];
+int lca[kMaxM];
+int father[kMaxN];
+vector<int> g[kMaxN];
+vector<query> q[kMaxN];
 
 void init(){
     int x,y;

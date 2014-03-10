@@ -60,7 +60,7 @@ using namespace std;
 
 #define REP(i,st,ed) for (int i=st; i<ed; i++)
 
-const int MAXN = 102400;
+const int kMaxN = 102400;
 
 struct splayNode{
     splayNode *fa,*ch[2];
@@ -101,7 +101,7 @@ struct splayNode{
 
 typedef splayNode* ptr;
 
-int n,m,k1,k2,data[MAXN];
+int n,m,k1,k2,data[kMaxN];
 
 ptr build(int data[], int l, int r, ptr fa=NULL){
     int mid=(l+r)/2;

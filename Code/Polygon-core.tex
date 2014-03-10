@@ -10,7 +10,7 @@
 #include <cstring>
 using namespace std;
 
-const int MAXN=2000;
+const int kMaxN=2000;
 const double eps=1e-8;
 
 struct point{
@@ -18,7 +18,7 @@ struct point{
 };
 
 int n,N,ca;
-point a[MAXN],b[MAXN],c[MAXN];
+point a[kMaxN],b[kMaxN],c[kMaxN];
 
 void getABC(double &A, double &B, double &C, point &a, point &b){
     A=b.y-a.y;

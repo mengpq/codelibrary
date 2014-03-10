@@ -11,14 +11,14 @@ struct data {
 };
 
 const double eps=1e-7;
-const int MAXN=100001;
-const int MAXM=100001;
-const int logMAXN=18;
+const int kMaxN=100001;
+const int kMaxM=100001;
+const int logkMaxN=18;
 
 int n,m,tot,total;
-int g[MAXN],pos[MAXN];
-int adj[MAXM*2],next[MAXM*2]; //数组大小*2
-data RMQ[MAXN*2+1][logMAXN]; //2^(logMAXN-1)>MAXN
+int g[kMaxN],pos[kMaxN];
+int adj[kMaxM*2],next[kMaxM*2]; //数组大小*2
+data RMQ[kMaxN*2+1][logkMaxN]; //2^(logkMaxN-1)>kMaxN
 
 void connect(int x, int y){
     ++total;

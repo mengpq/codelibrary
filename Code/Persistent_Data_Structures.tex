@@ -21,7 +21,7 @@
 #include <algorithm>
 using namespace std;
 
-const int MAXN=100001;
+const int kMaxN=100001;
 const int MAXLIMIT=500000;
 
 struct data{
@@ -37,9 +37,9 @@ struct data{
 };
 
 data buffer[MAXLIMIT];
-data* tree[MAXN];
+data* tree[kMaxN];
 int n,m,total,number;
-int record[MAXN];
+int record[kMaxN];
 
 data *build(int l, int r){
     if (l==r){

@@ -211,7 +211,7 @@ int main(){
 #include <algorithm>
 using namespace std;
 
-const int MAXN=128;
+const int kMaxN=128;
 const double eps=1e-8;
 const double pi=acos(-1.0);
 
@@ -229,7 +229,7 @@ struct point{
 
 struct polygon{
     int n;
-    point points[MAXN];
+    point points[kMaxN];
     int size(){
         return n;
     }
@@ -399,7 +399,7 @@ int main(){
 using namespace std;
 
 const double eps=1e-8;
-const int MAXN=1001;
+const int kMaxN=1001;
 
 struct point{
     double x,y;
@@ -425,7 +425,7 @@ struct circle{
 };
 
 int n;
-point P[MAXN];
+point P[kMaxN];
 
 void init(){
     double x,y;

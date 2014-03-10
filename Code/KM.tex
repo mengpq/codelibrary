@@ -2,11 +2,11 @@
 \begin{verbatim}
 //可以解决最大权完全匹配, 下标从0开始
 struct km{
-    static const int MAX_N = 128;
+    static const int kMaxN = 128;
     static const int INF = 0x3f3f3f3f;
     int n, m;
-    bool sx[MAX_N], sy[MAX_N];
-    int cx[MAX_N], cy[MAX_N], lx[MAX_N], ly[MAX_N], g[MAX_N][MAX_N];
+    bool sx[kMaxN], sy[kMaxN];
+    int cx[kMaxN], cy[kMaxN], lx[kMaxN], ly[kMaxN], g[kMaxN][kMaxN];
 
     void init(int _n, int _m){
         n = _n, m = _m;

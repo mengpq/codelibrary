@@ -5,16 +5,16 @@
 #include <algorithm>
 using namespace std;
 
-const int MAX_N = 102401;
-const int MAX_M = 256000;
+const int kMaxN = 102401;
+const int kMaxM = 256000;
 const int INF = 0x3f3f3f3f;
 
 struct SAP{
     //S -> source, T -> sink 
     //n -> |V|, cnt -> 2 * |E|
     int S, T, n, cnt;
-    int f[MAX_M], adj[MAX_M], next[MAX_M];
-    int g[MAX_N], last[MAX_N], h[MAX_N], vh[MAX_N];
+    int f[kMaxM], adj[kMaxM], next[kMaxM];
+    int g[kMaxN], last[kMaxN], h[kMaxN], vh[kMaxN];
 
     void init(int _n){
         n = _n;

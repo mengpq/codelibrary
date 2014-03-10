@@ -17,12 +17,12 @@ struct data
 };
 
 const int maxn=100001;   //最大顶点数
-const int maxm=1000001;  //对大边数
+const int kMaxM=1000001;  //对大边数
 
 int n,m,st,ed,tot;
-int g[maxn],dist[maxn],next[maxm];
+int g[maxn],dist[maxn],next[kMaxM];
 bool vis[maxn];
-data adj[maxm];
+data adj[kMaxM];
 
 //定义heap q, priority_queue默认是最大堆
 priority_queue<data> q;

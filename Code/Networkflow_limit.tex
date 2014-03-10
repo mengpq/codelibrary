@@ -10,11 +10,11 @@ using namespace std;
 const int INF=0x7FFFFFFF;
 
 const int maxn=1001;
-const int maxm=100001;
+const int kMaxM=100001;
 
 int n,m,s,t,ca,P,tot,S,T,NT,flow,maxtot;
 int g[maxn],last[maxn],h[maxn],vh[maxn];
-int a[maxm][4],f[maxm],adj[maxm],next[maxm];
+int a[kMaxM][4],f[kMaxM],adj[kMaxM],next[kMaxM];
 
 void insert(int x, int y, int limit){
     f[tot]=limit;

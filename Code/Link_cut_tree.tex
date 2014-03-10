@@ -27,12 +27,12 @@
 #include <algorithm>
 using namespace std;
 
-const int MAX_N = 100001;
+const int kMaxN = 100001;
 
 int n,totalSize;
-int size[MAX_N],top[MAX_N],depth[MAX_N],idx[MAX_N],hson[MAX_N],parent[MAX_N];
-int tree[MAX_N * 4];
-vector<int> g[MAX_N];
+int size[kMaxN],top[kMaxN],depth[kMaxN],idx[kMaxN],hson[kMaxN],parent[kMaxN];
+int tree[kMaxN * 4];
+vector<int> g[kMaxN];
 
 void init(){
     int x,y;

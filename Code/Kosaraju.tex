@@ -9,11 +9,11 @@ using namespace std;
 #define MP make_pair
 
 const int maxn=100001;
-const int maxm=1000001;
+const int kMaxM=1000001;
 
 int n,m,tot,top,total;
 bool vis[maxn];
-int g[2][maxn],pr[maxn],part[maxn],adj[maxm*2],next[maxm*2];
+int g[2][maxn],pr[maxn],part[maxn],adj[kMaxM*2],next[kMaxM*2];
 //模拟栈,纪录dfs时候的局部变量
 pair<int,int> stk[maxn];
 

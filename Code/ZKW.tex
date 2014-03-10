@@ -9,8 +9,8 @@ using namespace std;
 
 #define foreach(it, s) for (__typeof(s.begin()) it = s.begin(); it != s.end(); ++it)
 
-const int MAX_N = 1024;
-const int MAX_M = MAX_N * MAX_N;
+const int kMaxN = 1024;
+const int kMaxM = kMaxN * kMaxN;
 const int INF = 0x3f3f3f3f;
 
 int cnt = 0, prevCost;
@@ -20,7 +20,7 @@ struct    Greap_min_cost_flow {
     struct Edge {
         int to, w, c;
         Edge *next , *other;
-    }*mat[MAX_N], edges[MAX_M];
+    }*mat[kMaxN], edges[kMaxM];
     void link(int x, int to, int w, int c) {
         edges[ecnt].to = to;
         edges[ecnt].w = w;
@@ -38,7 +38,7 @@ struct    Greap_min_cost_flow {
     }
 
     int source, remit, piS, cost, f;
-    bool v[MAX_N];
+    bool v[kMaxN];
     bool check(int &x, int y) {
         if ( x > y ) { x = y; return true; }
         return false;
@@ -108,7 +108,7 @@ struct    Greap_min_cost_flow {
 }G;
 
 int n, m, r, t, k;
-int total[MAX_N], starttime[MAX_N];
+int total[kMaxN], starttime[kMaxN];
 
 void init(){
     scanf("%d%d%d%d%d", &n, &m, &r, &t, &k);

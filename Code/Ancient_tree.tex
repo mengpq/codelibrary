@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-const int MAXN=100001;
+const int kMaxN=100001;
 const int maxDeep=17;
 
 
@@ -18,8 +18,8 @@ const int maxDeep=17;
 */
 
 int n,m;
-int deep[MAXN],father[MAXN][maxDeep];
-vector<int> g[MAXN];
+int deep[kMaxN],father[kMaxN][maxDeep];
+vector<int> g[kMaxN];
 
 void init(){
     scanf("%d",&n);

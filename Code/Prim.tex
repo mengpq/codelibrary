@@ -12,13 +12,13 @@ struct data
 };
 
 const int maxn=1001;
-const int maxm=1000001;
+const int kMaxM=1000001;
 const int INF=0x7FFFFFFF;
 
-data adj[maxm];
+data adj[kMaxM];
 bool vis[maxn];
 int n,m,tot,ans;
-int g[maxn],dist[maxn],next[maxm];
+int g[maxn],dist[maxn],next[kMaxM];
 
 void connect(int x, int y, int len)
 {

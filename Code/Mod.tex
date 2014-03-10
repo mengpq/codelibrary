@@ -10,7 +10,7 @@
 #include <algorithm>
 using namespace std;
 
-const int MAXN=100001;
+const int kMaxN=100001;
 
 struct data{
     int Pi,P;
@@ -26,7 +26,7 @@ struct com{
 
 int n,m,ca,Mod;
 vector<com> ask;
-long long factorial[MAXN],power[2];
+long long factorial[kMaxN],power[2];
 
 void init(){
     int x,y;
@@ -72,12 +72,12 @@ vector<data> factorization(int Mod){
 
 void initialization(int Pi, int P){
     factorial[0]=1;
-    for (int i=1; i<min(MAXN,P); i++){
+    for (int i=1; i<min(kMaxN,P); i++){
         if (i%Pi!=0){
             factorial[i]=factorial[i-1]*i%P;
         } else factorial[i]=factorial[i-1];
     }
-    if (P<MAXN){
+    if (P<kMaxN){
         power[1]=factorial[P-1]; power[0]=power[1]*power[1]%P;
     }
 }

@@ -16,7 +16,7 @@
 #include <algorithm>
 using namespace std;
 
-const int MAXN=100001;
+const int kMaxN=100001;
 
 struct segment{
     int x1,x2,y,flag;
@@ -28,10 +28,10 @@ struct data{
     int cover,len;
 };
 
-data tree[MAXN*8];
-segment seg[MAXN*2];
+data tree[kMaxN*8];
+segment seg[kMaxN*2];
 int n,tot,totx,toty;
-int vx[MAXN*2],vy[MAXN*2];
+int vx[kMaxN*2],vy[kMaxN*2];
 
 bool cmp(const segment &a, const segment &b){
     return a.y<b.y;

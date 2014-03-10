@@ -124,7 +124,7 @@ leftistTree merge(leftistTree a, leftistTree b){
 #include <algorithm>
 using namespace std;
 
-const int MAXN=100001;
+const int kMaxN=100001;
 
 struct leftistNode{
     int key,dist,left,right;
@@ -135,7 +135,7 @@ struct leftistNode{
     }
 };
 
-leftistNode buffer[MAXN];
+leftistNode buffer[kMaxN];
 
 int mergeNode(int A, int B){
     if (!A) return B;
@@ -175,8 +175,8 @@ leftistTree merge(leftistTree &a, leftistTree &b){
 }
 
 int n;
-int number[MAXN],father[MAXN];
-leftistTree heap[MAXN];
+int number[kMaxN],father[kMaxN];
+leftistTree heap[kMaxN];
 
 void init(){
     for (int i=1; i<=n; i++) scanf("%d",&number[i]);

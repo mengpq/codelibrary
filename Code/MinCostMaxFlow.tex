@@ -33,14 +33,14 @@ pair<int,int> operator +(const pair<int,int> &a, const pair<int,int> &b){
 }
 
 struct netwrok{
-    static const int MAX_N = 256;
-    static const int MAX_M = 102400;
+    static const int kMaxN = 256;
+    static const int kMaxM = 102400;
     static const int INF = 0x3f3f3f3f;
 
-    bool vis[MAX_N];
+    bool vis[kMaxN];
     int n, cnt, S, T, flow;
-    int g[MAX_N], dist[MAX_N], pre[MAX_N];
-    int f[MAX_M], adj[MAX_M], next[MAX_M], cost[MAX_M];
+    int g[kMaxN], dist[kMaxN], pre[kMaxN];
+    int f[kMaxM], adj[kMaxM], next[kMaxM], cost[kMaxM];
 
     void ins(int x, int y, int limit, int c){
         f[cnt] = limit;

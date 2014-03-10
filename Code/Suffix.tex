@@ -40,11 +40,11 @@ suffix(sa[n])的顺序计算，不难发现，对于每一次新加进来的后�
 #include <iostream>
 using namespace std;
 
-const int MAXN=100001;
+const int kMaxN=100001;
 const int maxChar=256;
 
-int rank[MAXN],rank1[MAXN],rank2[MAXN],sa[MAXN],
-    tmpsa[MAXN],height[MAXN],countrank[MAXN];
+int rank[kMaxN],rank1[kMaxN],rank2[kMaxN],sa[kMaxN],
+    tmpsa[kMaxN],height[kMaxN],countrank[kMaxN];
 
 void suffixArray(string &st){
     int tot=0,len=st.size();
